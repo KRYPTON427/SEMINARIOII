@@ -1,11 +1,9 @@
 /* ==========================================================================
-   auth.js — Inicio de sesión con Google (Supabase OAuth) + modo local
+   auth.js — Inicio de sesión exclusivo con Google (Supabase OAuth)
    ========================================================================== */
 
 (function () {
   "use strict";
-
-  const SESSION_KEY = "cronograma.anteproyecto.session";
 
   /* -------------------- helpers -------------------- */
   function $(s, r = document) { return r.querySelector(s); }
@@ -29,26 +27,10 @@
     }
   }
 
-  /* -------------------- session storage (modo local) -------------------- */
-  function saveLocalSession(user) {
-    localStorage.setItem(SESSION_KEY, JSON.stringify({
-      user,
-      mode: "local",
-      at: Date.now()
-    }));
-  }
-  function getSession() {
-    try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }
-    catch (e) { return null; }
-  }
-  function clearSession() {
-    localStorage.removeItem(SESSION_KEY);
-  }
-
   /* -------------------- Google OAuth via Supabase -------------------- */
   async function loginWithGoogle() {
     if (!window.supabaseClient) {
-      throw new Error("Supabase no está configurado. Edita js/config.js para activar el inicio de sesión con Google, o continúa en modo local.");
+      throw new Error("Supabase no está configurado. Edita js/config.js para activar el inicio de sesión con Google.");
     }
     /* Construye la URL de retorno usando URL para evitar dobles barras o concat erróneas */
     const base = new URL(window.location.href);
@@ -84,46 +66,19 @@
     });
   }
 
-  /* Reutiliza el mismo guest-id en este navegador para que el invitado
-     no pierda sus datos locales si vuelve a entrar después de cerrar sesión */
-  const GUEST_ID_KEY = "cronograma.anteproyecto.guest-id";
-  function getOrCreateGuestId() {
-    let id = localStorage.getItem(GUEST_ID_KEY);
-    if (!id) {
-      id = "guest-" + crypto.randomUUID();
-      localStorage.setItem(GUEST_ID_KEY, id);
-    }
-    return id;
-  }
-
-  function bindGuest() {
-    const btn = $("#btn-guest");
-    if (!btn) return;
-    btn.addEventListener("click", () => {
-      saveLocalSession({
-        id: getOrCreateGuestId(),
-        email: "invitado@local",
-        user_metadata: { name: "Invitado", university: "", program: "" }
-      });
-      window.location.href = "app.html";
-    });
-  }
-
   /* -------------------- API global usada por app.html -------------------- */
   window.AUTH = {
     async getCurrentUser() {
       if (window.APP_CONFIG.isCloudReady && window.supabaseClient) {
         const { data } = await window.supabaseClient.auth.getUser();
-        if (data?.user) return data.user;
+        return data?.user || null;
       }
-      const s = getSession();
-      return s?.user || null;
+      return null;
     },
     async logout() {
       if (window.APP_CONFIG.isCloudReady && window.supabaseClient) {
         await window.supabaseClient.auth.signOut();
       }
-      clearSession();
       window.location.href = "index.html";
     },
     isCloud() { return !!window.APP_CONFIG.isCloudReady && !!window.supabaseClient; }
@@ -138,11 +93,12 @@
     if (user) { window.location.href = "app.html"; return; }
 
     bindGoogle();
-    bindGuest();
 
     if (!window.APP_CONFIG.isCloudReady) {
       const note = $("#note-login");
-      setNote(note, "ℹ︎ Modo local activo. Configura Supabase en js/config.js para habilitar el inicio de sesión con Google.", "ok");
+      setNote(note, "⚠ Supabase no está configurado. Edita js/config.js con tu URL y anon key para habilitar el inicio de sesión con Google.", "error");
+      const btn = $("#btn-google");
+      if (btn) btn.disabled = true;
     }
   });
 })();
