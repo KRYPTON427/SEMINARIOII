@@ -123,7 +123,7 @@ graph LR
 
 <div align="center">
 
-[![Abrir aplicación](https://img.shields.io/badge/✨_Abrir_aplicación-3b82f6?style=for-the-badge&logo=vercel&logoColor=white)](https://github.com/KRYPTON427/SEMINARIOII)
+[![Abrir aplicación](https://img.shields.io/badge/✨_Abrir_aplicación-3b82f6?style=for-the-badge&logo=vercel&logoColor=white)](https://seminarioii.vercel.app/)
 [![Ver código](https://img.shields.io/badge/📂_Ver_código-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/KRYPTON427/SEMINARIOII)
 [![Setup técnico](https://img.shields.io/badge/⚙️_Setup_técnico-475569?style=for-the-badge)](./SETUP.md)
 
@@ -174,8 +174,8 @@ graph LR
 <a href="https://github.com/KRYPTON427">
   <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" />
 </a>
-<a href="https://github.com/KRYPTON427/SEMINARIOII">
-  <img src="https://img.shields.io/badge/Mi_proyecto-3b82f6?style=for-the-badge&logo=vercel&logoColor=white" />
+<a href="https://seminarioii.vercel.app/">
+  <img src="https://img.shields.io/badge/App_en_vivo-3b82f6?style=for-the-badge&logo=vercel&logoColor=white" />
 </a>
 
 </div>

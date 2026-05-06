@@ -68,8 +68,8 @@ Ve a **Project Settings → API** y copia:
    - Application type: **Web application**
    - **Authorized JavaScript origins**:
      ```
-     https://<tu-dominio>.vercel.app
-     https://<tu-dominio-custom>.com   (opcional)
+     https://seminarioii.vercel.app
+     https://tu-dominio-custom.com   (opcional)
      ```
    - **Authorized redirect URIs**: pega el callback que Supabase te indica (ver paso siguiente).
 
@@ -87,11 +87,11 @@ Ve a **Project Settings → API** y copia:
 
 **Authentication → URL Configuration**:
 
-- `Site URL`: `https://<tu-dominio>.vercel.app`
+- `Site URL`: `https://seminarioii.vercel.app`
 - `Redirect URLs` (whitelist):
   ```
-  https://<tu-dominio>.vercel.app
-  https://<tu-dominio>.vercel.app/app.html
+  https://seminarioii.vercel.app
+  https://seminarioii.vercel.app/app.html
   http://localhost:5500     (para desarrollo local con Live Server, opcional)
   http://localhost:5500/app.html
   ```
