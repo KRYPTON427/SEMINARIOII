@@ -201,4 +201,4 @@ cronograma/
 
 ## Créditos
 
-Web desarrollada por **Albeiro Ramos** · Apoyo Seminario de Práctica.
+Web desarrollada por **Albeiro Ramos** · Apoyo Seminario de Investigación II.

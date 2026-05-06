@@ -52,7 +52,7 @@
 > Construyo herramientas digitales que ayudan a otros estudiantes a organizarse, aprender y completar sus proyectos académicos.
 
 ```diff
-+ 🎓  Apoyo del Seminario de Práctica
++ 🎓  Apoyo del Seminario de Investigación II
 + 🌱  Aprendiendo cada día algo nuevo
 + 🛠️  Construyendo cronogramas, dashboards y apps educativas
 + 🇨🇴  Desde Colombia para el mundo
@@ -157,7 +157,7 @@ graph LR
 ```yaml
 🌱 aprendiendo:    [Supabase, OAuth, PostgreSQL RLS, jsPDF]
 🔭 trabajando_en:  Cronograma de Anteproyecto v1
-📝 investigación:  Apoyo metodológico para Seminario de Práctica
+📝 investigación:  Apoyo metodológico para Seminario de Investigación II
 🎨 explorando:     Diseño de UX accesible (WCAG, prefers-reduced-motion)
 ☕ combustible:    Café colombiano + curiosidad
 ```
@@ -191,6 +191,6 @@ graph LR
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:8b5cf6,50:06b6d4,100:3b82f6&height=120&section=footer&text=¡Gracias%20por%20pasar!&fontSize=24&fontColor=ffffff&animation=twinkling&fontAlignY=70" />
 
-<sub>Hecho con 💙 por Albeiro Ramos · Apoyo Seminario de Práctica · 2026</sub>
+<sub>Hecho con 💙 por Albeiro Ramos · Apoyo Seminario de Investigación II · 2026</sub>
 
 </div>
