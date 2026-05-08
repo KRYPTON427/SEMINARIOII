@@ -484,19 +484,31 @@
       rightBody.addEventListener("scroll", syncLR, { passive: true });
       leftBody.addEventListener("scroll", syncRL, { passive: true });
 
-      /* sync de ALTURAS: cuando un título envuelve a 2-3 líneas, la fila
-         izquierda crece pero la derecha no. Medimos y aplicamos la altura
-         máxima de cada par para que las barras alineen con sus actividades. */
+      /* sync de ALTURAS: el header del izq y los títulos largos del cuerpo
+         envuelven distinto que sus contrapartes derechas. Medimos y
+         aplicamos la altura máxima de cada par (head + cada fila body)
+         para que las barras alineen con sus actividades. */
+      const leftHead  = host.querySelector(".gnt-pane--left  .gnt-pane__head .gnt-row");
+      const rightHead = host.querySelector(".gnt-pane--right .gnt-pane__head .gnt-row");
       const syncRowHeights = () => {
+        /* sync header */
+        if (leftHead && rightHead) {
+          leftHead.style.height = "";
+          rightHead.style.height = "";
+          const lh = leftHead.getBoundingClientRect().height;
+          const rh = rightHead.getBoundingClientRect().height;
+          const max = Math.ceil(Math.max(lh, rh));
+          leftHead.style.height  = max + "px";
+          rightHead.style.height = max + "px";
+        }
+        /* sync body rows */
         const leftRows  = leftBody.querySelectorAll(".gnt-row");
         const rightRows = rightBody.querySelectorAll(".gnt-row");
         const n = Math.min(leftRows.length, rightRows.length);
-        /* primera pasada: limpiar para medir altura natural */
         for (let i = 0; i < n; i++) {
           leftRows[i].style.height = "";
           rightRows[i].style.height = "";
         }
-        /* segunda pasada: aplicar máxima */
         for (let i = 0; i < n; i++) {
           const lh = leftRows[i].getBoundingClientRect().height;
           const rh = rightRows[i].getBoundingClientRect().height;

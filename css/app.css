@@ -470,15 +470,17 @@
 }
 .gnt-row > div { flex-shrink: 0; box-sizing: border-box; }
 
-/* Variante IZQUIERDA: 7 columnas fijas suman 780px */
+/* Variante IZQUIERDA: 7 columnas fijas suman 780px.
+   Acciones se ensancha a 80px para que la etiqueta "ACCIONES"
+   no se corte; tomamos ese espacio de Actividad/Estado/Prioridad. */
 .gnt-row--left { width: 780px; }
 .gnt-row--left > div:nth-child(1) { width: 32px;  }   /* # */
-.gnt-row--left > div:nth-child(2) { width: 230px; }   /* nombre */
-.gnt-row--left > div:nth-child(3) { width: 120px; }   /* estado */
-.gnt-row--left > div:nth-child(4) { width: 120px; }   /* prioridad */
+.gnt-row--left > div:nth-child(2) { width: 220px; }   /* nombre */
+.gnt-row--left > div:nth-child(3) { width: 116px; }   /* estado */
+.gnt-row--left > div:nth-child(4) { width: 116px; }   /* prioridad */
 .gnt-row--left > div:nth-child(5) { width: 108px; }   /* inicio */
 .gnt-row--left > div:nth-child(6) { width: 108px; }   /* fin */
-.gnt-row--left > div:nth-child(7) { width: 62px;  }   /* acciones */
+.gnt-row--left > div:nth-child(7) { width: 80px;  }   /* acciones */
 
 /* Variante DERECHA: una sola celda (track) que ocupa el ancho del timeline */
 .gnt-row--right > .gnt-c-track { flex-grow: 1; }
@@ -490,18 +492,35 @@
   content: "↳"; margin-right: 0.4rem; color: var(--ink-mute);
 }
 
-/* header (en split-pane el head ya está fuera del body que scrollea,
-   así que no necesita sticky) */
+/* header del Gantt — altura se sincroniza con el header derecho via JS */
 .gnt-header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+  border-bottom: 2px solid #1e293b;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: var(--ink-mute);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #1e293b;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.gnt-header > div { padding: 0.55rem 0.6rem; align-self: center; }
+.gnt-row.gnt-header.gnt-row--left  { min-height: 0; }
+.gnt-row.gnt-header.gnt-row--right { min-height: 0; }
+.gnt-header > div {
+  padding: 0.55rem 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+/* columna # de header — fondo oscuro que matchea la banda de AÑO */
+.gnt-header > .gnt-c-num {
+  justify-content: center;
+  background: linear-gradient(180deg, #1e293b, #334155);
+  color: #fff;
+  font-weight: 700;
+}
+/* columna ACCIONES — centrada */
+.gnt-header > div:nth-child(7) { justify-content: center; }
+
 /* en el panel derecho (timeline), el header no debe tener padding extra */
 .gnt-row.gnt-header.gnt-row--right > .gnt-c-timeline { padding: 0; }
 
