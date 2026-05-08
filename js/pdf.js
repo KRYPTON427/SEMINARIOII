@@ -520,24 +520,22 @@
     if (cStart >= 0) dateChunks.push({ dayStart: cStart, dayEnd: totalDays - gapLen });
     if (!dateChunks.length) dateChunks.push({ dayStart: 0, dayEnd: totalDays });
 
-    /* dayW por chunk: queremos que los labels "Nd · X%" sean visibles,
-       así que mantenemos dayW=9pt como ideal. Si el chunk no cabe con
-       9pt, lo subdividimos en sub-páginas dentro del mismo semestre. */
+    /* dayW por chunk: priorizamos NO cortar barras. Cada semestre cabe
+       en una sola página horizontal (110d → dayW≈5.3 / 117d → dayW≈5).
+       Solo subdividimos si el chunk es ridículamente largo (proyecto
+       fuera del modo "32 semanas"). */
     const expandedChunks = [];
     for (const c of dateChunks) {
       const days = c.dayEnd - c.dayStart;
       const fit  = availTimelineW / days;
-      if (fit >= idealDayW) {
-        /* todo el chunk cabe con día grande → usamos el fit para
-           rellenar el ancho disponible (sin pasar de maxDayW) */
+      if (fit >= minDayW) {
+        /* el chunk cabe entero — usamos fitW (con tope maxDayW) */
         expandedChunks.push({
           dayStart: c.dayStart, dayEnd: c.dayEnd,
           dayW: Math.min(maxDayW, fit)
         });
       } else {
-        /* el chunk es más largo que una página a 9pt/día →
-           subdividirlo en páginas de daysPerPage días, manteniendo
-           idealDayW para que las barras tengan label legible. */
+        /* fallback: sólo si fit < 1.5 pt/día subdividimos */
         const dW = idealDayW;
         const dpp = Math.floor(availTimelineW / dW);
         for (let s = c.dayStart; s < c.dayEnd; s += dpp) {
@@ -586,18 +584,22 @@
     }
 
     /* Plan de páginas: para cada chunk de fechas, filtramos filas con
-       contenido y las paginamos verticalmente en grupos de rowsPerPage.
-       Resultado: cada página muestra exactamente las filas que tienen
-       barras visibles, sin huecos ni filas vacías. */
+       contenido y las paginamos verticalmente.
+       BALANCEO: si tenemos N filas visibles y rowsPerPage es 24, en
+       lugar de dividir 25 → [24, 1] (página huérfana), dividimos en
+       grupos del mismo tamaño: 25 → [13, 12]. Así ninguna página
+       queda casi vacía y el documento se ve mejor. */
     const pagesPlan = [];
     for (let h = 0; h < totalChunksH; h++) {
       const ec = expandedChunks[h];
       const visibleRows = filterRowsForRange(ordered, ec.dayStart, ec.dayEnd);
       if (visibleRows.length === 0) continue;
       const vChunks = Math.max(1, Math.ceil(visibleRows.length / rowsPerPage));
+      const balancedSize = Math.ceil(visibleRows.length / vChunks);
       for (let v = 0; v < vChunks; v++) {
-        const rowStart = v * rowsPerPage;
-        const rowEnd = Math.min(visibleRows.length, rowStart + rowsPerPage);
+        const rowStart = v * balancedSize;
+        const rowEnd = Math.min(visibleRows.length, rowStart + balancedSize);
+        if (rowStart >= rowEnd) break;
         pagesPlan.push({ ec, rows: visibleRows.slice(rowStart, rowEnd) });
       }
     }
@@ -987,12 +989,12 @@
               }
 
               /* etiqueta dentro de la barra (Nd · X%) */
-              if (bw > 24) {
+              if (bw > 20) {
                 doc.setTextColor(255, 255, 255);
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(5.5);
                 doc.text(`${dur}d \xB7 ${prog}%`, bx + 3, by + bh / 2 + 1.5);
-              } else if (bw > 14) {
+              } else if (bw > 11) {
                 /* sólo días, sin porcentaje, para barras compactas */
                 doc.setTextColor(255, 255, 255);
                 doc.setFont("helvetica", "bold");
