@@ -467,10 +467,10 @@
     const pageW = 842, pageH = 595;
     const margin = 28;
     const labelsW = 200;          /* ancho de la columna ACTIVIDAD */
-    const titleH  = 30;
+    const titleH  = 52;            /* titulo institucional + Figura 1 + caption */
     const headerH = 36;            /* meses + semanas + días, 12pt c/u */
     const rowH    = 16;
-    const noteH   = 24;
+    const noteH   = 40;            /* 3 líneas: Nota APA + URL + créditos */
 
     const availTimelineW = pageW - margin * 2 - labelsW;
     const availContentH  = pageH - margin * 2 - titleH - headerH - noteH;
@@ -558,15 +558,27 @@
         doc.setTextColor(0, 0, 0);
         doc.text(String(currentPage), pageW - margin, margin - 8, { align: "right" });
 
-        /* título APA */
+        /* TÍTULO PRINCIPAL — CRONOGRAMA DE ACTIVIDADES (centrado) */
         doc.setFont("times", "bold");
-        doc.setFontSize(12);
-        doc.text("Figura 1", margin, margin);
+        doc.setFontSize(15);
+        doc.setTextColor(15, 23, 42);
+        doc.text("CRONOGRAMA DE ACTIVIDADES", pageW / 2, margin + 4, { align: "center" });
+        /* línea decorativa bajo el título */
+        doc.setDrawColor(203, 132, 27);
+        doc.setLineWidth(0.8);
+        doc.line(pageW / 2 - 80, margin + 8, pageW / 2 + 80, margin + 8);
+
+        /* título APA: Figura 1 + caption */
+        doc.setFont("times", "bold");
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        doc.text("Figura 1", margin, margin + 22);
         doc.setFont("times", "italic");
+        doc.setFontSize(11);
         const partLabel = totalValidPages > 1
           ? ` (parte ${currentPage - startPageNo + 1} de ${totalValidPages})`
           : "";
-        doc.text(`Diagrama de Gantt del cronograma${partLabel}`, margin, margin + 13);
+        doc.text(`Diagrama de Gantt del cronograma${partLabel}`, margin, margin + 35);
 
         const tableX = margin;
         const tableY = margin + titleH;
@@ -874,12 +886,32 @@
           doc.text("HOY", tx, tableY - 2.5, { align: "center" });
         }
 
-        /* leyenda + nota APA */
+        /* === FOOTER: nota APA + URL + créditos (en todas las páginas) === */
         doc.setTextColor(0, 0, 0);
         doc.setFont("times", "italic");
         doc.setFontSize(8.5);
         doc.text("Nota. Elaboración propia. Las barras representan la duración planificada de cada actividad.",
-          margin, pageH - margin - 4);
+          margin, pageH - margin - 28);
+
+        /* línea separadora suave sobre la zona de créditos */
+        doc.setDrawColor(226, 232, 240);
+        doc.setLineWidth(0.4);
+        doc.line(margin, pageH - margin - 22, pageW - margin, pageH - margin - 22);
+
+        /* URL de la herramienta */
+        doc.setFont("times", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(80, 80, 90);
+        doc.text("Elaborado en https://seminarioii.vercel.app/",
+          pageW / 2, pageH - margin - 12, { align: "center" });
+
+        /* línea de créditos */
+        doc.setFontSize(7.5);
+        doc.setTextColor(110, 110, 120);
+        doc.text(
+          "(C) 2026 - Cronograma de Anteproyecto  -  Web desarrollada por Albeiro Ramos  -  Apoyo Seminario de Investigacion II",
+          pageW / 2, pageH - margin - 2, { align: "center" }
+        );
 
         currentPage++;
       }
