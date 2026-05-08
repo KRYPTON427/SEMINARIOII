@@ -788,43 +788,33 @@
   letter-spacing: 0.1em;
 }
 
-/* ETIQUETAS DE EJE (Año/Mes/Sem./Día) — flotan sticky-left sobre el
-   header del timeline, así siempre se ve qué representa cada fila
-   por más que el usuario haga scroll horizontal a la derecha. */
-.gnt-pane--right .gnt-pane__head {
-  position: relative;
-  display: flex;
-  align-items: stretch;
-}
-.gnt-axis-key {
-  flex-shrink: 0;
-  width: 52px;
-  margin-right: -52px;     /* no ocupa espacio: se superpone al timeline */
-  position: sticky;
-  left: 0;
-  top: 0;
-  z-index: 6;
-  display: flex;
+/* ETIQUETAS DE EJE (Año/Mes/Sem./Día) — van en la última celda del
+   header del panel izquierdo (donde antes decía "ACCIONES"). Tienen
+   el mismo ancho que la columna de acciones del cuerpo, para mantener
+   el alineamiento de las filas. */
+.gnt-axis-key-cell {
+  padding: 0 !important;
+  display: flex !important;
   flex-direction: column;
-  background: linear-gradient(135deg, rgba(15,23,42,0.96), rgba(51,65,85,0.96));
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  background: linear-gradient(135deg, #0f172a, #334155);
   color: #f8fafc;
   font-family: var(--font-mono);
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  border-right: 2px solid #cb841b;  /* acento UPN dorado */
-  box-shadow: 4px 0 6px -3px rgba(15,23,42,0.18);
-  pointer-events: none;
+  border-left: 2px solid #cb841b;  /* acento UPN dorado */
 }
-.gnt-axis-key > span {
+.gnt-axis-key-cell > span {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid rgba(255,255,255,0.14);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
 }
-.gnt-axis-key > span:last-child { border-bottom: 0; }
+.gnt-axis-key-cell > span:last-child { border-bottom: 0; }
 
 /* ============================================================
    MODALS

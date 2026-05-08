@@ -440,7 +440,12 @@
               <div>Prioridad</div>
               <div>Inicio</div>
               <div>Fin</div>
-              <div style="text-align:center;">Acciones</div>
+              <div class="gnt-axis-key-cell">
+                <span>Año</span>
+                <span>Mes</span>
+                <span>Sem.</span>
+                <span>Día</span>
+              </div>
             </div>
           </div>
           <div class="gnt-pane__body" id="gnt-left-body">
@@ -452,13 +457,6 @@
         <div class="gnt-pane gnt-pane--right" id="gnt-right">
           <div class="gnt-pane__inner" style="width:${timelineWidth}px;">
             <div class="gnt-pane__head">
-              <!-- ETIQUETAS DE EJE (sticky-left, queda fija durante scroll) -->
-              <div class="gnt-axis-key" aria-hidden="true">
-                <span>Año</span>
-                <span>Mes</span>
-                <span>Sem.</span>
-                <span>Día</span>
-              </div>
               <div class="gnt-row gnt-header gnt-row--right">
                 <div class="gnt-c-timeline" style="width:${timelineWidth}px;">
                   <div class="gnt-years"  style="grid-template-columns: repeat(${totalDays}, ${DAY_W}px);">${yearsHTML}</div>
