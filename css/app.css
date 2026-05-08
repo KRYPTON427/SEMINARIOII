@@ -798,8 +798,8 @@
   flex-direction: column;
   align-items: stretch !important;
   justify-content: stretch !important;
-  background: linear-gradient(135deg, #0f172a, #334155);
-  color: #f8fafc;
+  background: #ffffff;
+  color: #1e293b;
   font-family: var(--font-mono);
   font-size: 0.62rem;
   font-weight: 700;
@@ -812,7 +812,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  border-bottom: 1px solid #e2e8f0;
 }
 .gnt-axis-key-cell > span:last-child { border-bottom: 0; }
 
