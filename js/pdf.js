@@ -476,20 +476,25 @@
     const availContentH  = pageH - margin * 2 - titleH - headerH - noteH;
     const rowsPerPage    = Math.floor(availContentH / rowH);
 
-    /* Estrategia: priorizamos LEGIBILIDAD.
-       Si todo cabe con un día ≥ 9pt → una sola página horizontal (ancho expandido).
-       Si no cabe → paginamos horizontalmente con dayW = 9pt (días bien visibles). */
+    /* Estrategia: el cronograma COMPLETO en cada página (sin cortar
+       barras a mitad de actividad). Comprimimos el día tanto como sea
+       necesario para que las 32 semanas entren en el ancho útil.
+       Sólo paginamos en VERTICAL (cuando hay muchas filas de actividad).
+       Si el proyecto fuera tan largo que ni siquiera con 1.5pt/día cabe,
+       caemos al modo histórico de paginar horizontalmente. */
     const idealDayW = 9;
+    const minDayW   = 1.5;
     const maxDayW   = 30;
+    const fitDayW   = availTimelineW / totalDays;
 
     let dayW, daysPerPage, totalChunksH;
-    if (totalDays * idealDayW <= availTimelineW) {
-      /* todo cabe en una página → expandimos para llenar el ancho */
-      dayW = Math.min(maxDayW, availTimelineW / totalDays);
+    if (fitDayW >= minDayW) {
+      /* cabe en un ancho de página: usamos `fitDayW` (limitado al máximo) */
+      dayW = Math.min(maxDayW, fitDayW);
       daysPerPage = totalDays;
       totalChunksH = 1;
     } else {
-      /* no cabe → paginamos horizontalmente manteniendo legibilidad */
+      /* fallback: cronograma muy extenso → paginamos horizontalmente */
       dayW = idealDayW;
       daysPerPage = Math.floor(availTimelineW / dayW);
       totalChunksH = Math.ceil(totalDays / daysPerPage);
