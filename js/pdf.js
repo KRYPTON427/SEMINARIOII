@@ -520,20 +520,32 @@
     if (cStart >= 0) dateChunks.push({ dayStart: cStart, dayEnd: totalDays - gapLen });
     if (!dateChunks.length) dateChunks.push({ dayStart: 0, dayEnd: totalDays });
 
-    /* dayW por chunk (cada chunk se ajusta a su página). Si un chunk
-       resulta tan largo que dayW < minDayW, lo subdividimos. */
+    /* dayW por chunk: queremos que los labels "Nd · X%" sean visibles,
+       así que mantenemos dayW=9pt como ideal. Si el chunk no cabe con
+       9pt, lo subdividimos en sub-páginas dentro del mismo semestre. */
     const expandedChunks = [];
     for (const c of dateChunks) {
       const days = c.dayEnd - c.dayStart;
       const fit  = availTimelineW / days;
-      if (fit >= minDayW) {
-        expandedChunks.push({ dayStart: c.dayStart, dayEnd: c.dayEnd, dayW: Math.min(maxDayW, fit) });
+      if (fit >= idealDayW) {
+        /* todo el chunk cabe con día grande → usamos el fit para
+           rellenar el ancho disponible (sin pasar de maxDayW) */
+        expandedChunks.push({
+          dayStart: c.dayStart, dayEnd: c.dayEnd,
+          dayW: Math.min(maxDayW, fit)
+        });
       } else {
-        /* subdividir respetando minDayW */
+        /* el chunk es más largo que una página a 9pt/día →
+           subdividirlo en páginas de daysPerPage días, manteniendo
+           idealDayW para que las barras tengan label legible. */
         const dW = idealDayW;
         const dpp = Math.floor(availTimelineW / dW);
         for (let s = c.dayStart; s < c.dayEnd; s += dpp) {
-          expandedChunks.push({ dayStart: s, dayEnd: Math.min(c.dayEnd, s + dpp), dayW: dW });
+          expandedChunks.push({
+            dayStart: s,
+            dayEnd: Math.min(c.dayEnd, s + dpp),
+            dayW: dW
+          });
         }
       }
     }
@@ -885,12 +897,12 @@
               }
 
               /* etiqueta dentro de la barra (Nd · X%) */
-              if (bw > 28) {
+              if (bw > 24) {
                 doc.setTextColor(255, 255, 255);
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(5.5);
-                doc.text(`${dur}d - ${prog}%`, bx + 3, by + bh / 2 + 1.5);
-              } else if (bw > 16) {
+                doc.text(`${dur}d \xB7 ${prog}%`, bx + 3, by + bh / 2 + 1.5);
+              } else if (bw > 14) {
                 /* sólo días, sin porcentaje, para barras compactas */
                 doc.setTextColor(255, 255, 255);
                 doc.setFont("helvetica", "bold");
