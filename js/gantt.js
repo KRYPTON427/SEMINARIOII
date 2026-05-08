@@ -31,6 +31,13 @@
     high:     { icon: "↑", label: "Alta"     },
     critical: { icon: "‼", label: "Crítica"  }
   };
+  /* Color de la barra por PRIORIDAD (matchea los pills del select) */
+  const PRIORITY_COLOR = {
+    low:      "#64748b",   /* slate */
+    medium:   "#2563eb",   /* blue */
+    high:     "#ea580c",   /* orange */
+    critical: "#dc2626"    /* red */
+  };
 
   /* -------------------- helpers -------------------- */
   function parseDate(s) { return new Date(s + "T00:00:00"); }
@@ -368,11 +375,16 @@
           </div>
         </div>`;
 
+      const priColor = PRIORITY_COLOR[a.priority] || "#3b82f6";
+      const barBg = a.status === "pending"
+        ? "#94a3b8"
+        : `linear-gradient(135deg, ${priColor}, ${darken(priColor, 0.55)})`;
+
       rightRowsHTML += `
         <div class="gnt-row gnt-row--right ${rowClass}${violationCls}" data-activity-id="${a.id}">
           <div class="gnt-c-track" style="--day-w:${DAY_W}px; width:${timelineWidth}px;">
             <div class="gnt-bar gnt-bar--${a.status}" data-prio="${a.priority}"
-                 style="left:${left}px; width:${width}px; background:${a.status==='pending' ? '#94a3b8' : `linear-gradient(135deg, ${phaseColor}, ${darken(phaseColor, 0.6)})`};"
+                 style="left:${left}px; width:${width}px; background:${barBg};"
                  title="${escapeHtml(a.title)} · ${a.start_date} → ${a.end_date} · ${PRIORITY_LABEL[a.priority]?.label || ''}">
               <div class="gnt-bar__progress" style="--p:${progress}%"></div>
               <span class="gnt-bar__label">${dur}d · ${progress}%</span>
@@ -440,6 +452,13 @@
         <div class="gnt-pane gnt-pane--right" id="gnt-right">
           <div class="gnt-pane__inner" style="width:${timelineWidth}px;">
             <div class="gnt-pane__head">
+              <!-- ETIQUETAS DE EJE (sticky-left, queda fija durante scroll) -->
+              <div class="gnt-axis-key" aria-hidden="true">
+                <span>Año</span>
+                <span>Mes</span>
+                <span>Sem.</span>
+                <span>Día</span>
+              </div>
               <div class="gnt-row gnt-header gnt-row--right">
                 <div class="gnt-c-timeline" style="width:${timelineWidth}px;">
                   <div class="gnt-years"  style="grid-template-columns: repeat(${totalDays}, ${DAY_W}px);">${yearsHTML}</div>
@@ -461,8 +480,13 @@
       </div>`}
 
       <div class="gnt-legend">
-        ${phases.map(p => `<span><i style="background:${p.color}"></i>${escapeHtml(p.title)}</span>`).join("")}
-        ${phases.length ? `<span class="gnt-legend__sep">·</span>` : ""}
+        <strong>Prioridad:</strong>
+        <span><i style="background:linear-gradient(135deg,#dc2626,#7f1212)"></i>‼ Crítica</span>
+        <span><i style="background:linear-gradient(135deg,#ea580c,#7c2c08)"></i>↑ Alta</span>
+        <span><i style="background:linear-gradient(135deg,#2563eb,#142a6b)"></i>→ Media</span>
+        <span><i style="background:linear-gradient(135deg,#64748b,#363f4d)"></i>↓ Baja</span>
+        <span class="gnt-legend__sep">·</span>
+        <strong>Estado:</strong>
         <span><i style="background:#94a3b8"></i>○ Pendiente</span>
         <span><i style="background:linear-gradient(135deg,#f59e0b,#f97316)"></i>◐ En progreso</span>
         <span><i style="background:linear-gradient(135deg,#10b981,#059669)"></i>● Completado</span>

@@ -468,7 +468,7 @@
     const margin = 28;
     const labelsW = 200;          /* ancho de la columna ACTIVIDAD */
     const titleH  = 52;            /* titulo institucional + Figura 1 + caption */
-    const headerH = 36;            /* meses + semanas + días, 12pt c/u */
+    const headerH = 48;            /* año + meses + semanas + días, 12pt c/u */
     const rowH    = 16;
     const noteH   = 40;            /* 3 líneas: Nota APA + URL + créditos */
 
@@ -643,22 +643,66 @@
         const totalTableW = labelsW + timelineW;
 
         /* ===== HEADER ===== */
-        const monthsRowY = tableY;
-        const weeksRowY  = tableY + headerH / 3;
-        const daysRowY   = tableY + (headerH * 2) / 3;
-        const subH = headerH / 3;
+        const yearsRowY  = tableY;
+        const monthsRowY = tableY + headerH / 4;
+        const weeksRowY  = tableY + (headerH * 2) / 4;
+        const daysRowY   = tableY + (headerH * 3) / 4;
+        const subH = headerH / 4;
 
-        /* fondo zona ACTIVIDAD — degradado sutil con borde derecho fuerte */
+        /* fondo zona ACTIVIDAD — etiquetas del eje (AÑO / MES / SEM / DÍA)
+           a la derecha de la palabra "ACTIVIDAD" */
         doc.setFillColor(241, 245, 249);
         doc.rect(tableX, tableY, labelsW, headerH, "F");
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(8);
+        doc.setFontSize(8.5);
         doc.setTextColor(30, 41, 59);
-        doc.text("ACTIVIDAD", tableX + 6, tableY + headerH - 5);
-        /* línea dorada sutil bajo "ACTIVIDAD" */
+        doc.text("ACTIVIDAD", tableX + 6, tableY + headerH / 2 + 2);
+        /* línea dorada vertical separadora */
         doc.setDrawColor(203, 132, 27);
-        doc.setLineWidth(0.4);
-        doc.line(tableX + 6, tableY + headerH - 3, tableX + 56, tableY + headerH - 3);
+        doc.setLineWidth(0.6);
+        doc.line(tableX + labelsW - 50, tableY, tableX + labelsW - 50, tableY + headerH);
+        /* etiquetas del eje a la derecha (alineadas con cada fila del header) */
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(6.2);
+        doc.setTextColor(71, 85, 105);
+        const axisLabelX = tableX + labelsW - 25;
+        doc.text("AÑO",   axisLabelX, yearsRowY  + subH - 3, { align: "center" });
+        doc.text("MES",   axisLabelX, monthsRowY + subH - 3, { align: "center" });
+        doc.text("SEM",   axisLabelX, weeksRowY  + subH - 3, { align: "center" });
+        doc.text("DÍA",   axisLabelX, daysRowY   + subH - 3, { align: "center" });
+
+        /* AÑOS — banda más oscura encima de meses */
+        let yCur = -1, yStartX = timelineX;
+        let curXY = timelineX;
+        for (let d = 0; d < chunkDays; d++) {
+          const dt = new Date(startD); dt.setDate(dt.getDate() + dayStart + d);
+          const yy = dt.getFullYear();
+          if (yy !== yCur) {
+            if (yCur >= 0) {
+              const w = curXY - yStartX;
+              doc.setFillColor(15, 23, 42);
+              doc.rect(yStartX, yearsRowY, w, subH, "F");
+              doc.setTextColor(255, 255, 255);
+              doc.setFont("helvetica", "bold");
+              doc.setFontSize(7.5);
+              doc.text(`${yCur}`, yStartX + w / 2, yearsRowY + subH - 3, { align: "center" });
+              doc.setDrawColor(255, 255, 255);
+              doc.setLineWidth(0.4);
+              doc.line(curXY, yearsRowY, curXY, yearsRowY + subH);
+            }
+            yCur = yy; yStartX = curXY;
+          }
+          curXY += dayW;
+        }
+        if (yCur >= 0) {
+          const w = curXY - yStartX;
+          doc.setFillColor(15, 23, 42);
+          doc.rect(yStartX, yearsRowY, w, subH, "F");
+          doc.setTextColor(255, 255, 255);
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(7.5);
+          doc.text(`${yCur}`, yStartX + w / 2, yearsRowY + subH - 3, { align: "center" });
+        }
 
         /* MESES — banda azul oscuro con texto blanco */
         let mCur = -1, mStartX = timelineX, mYear = 0;
@@ -908,8 +952,15 @@
               const by = rowY + 3;
               const bh = rowH - 6;
 
-              /* color por estado */
-              let fill = pc;
+              /* color por PRIORIDAD (matchea el badge del select).
+                 Si la actividad está pendiente, gris.                  */
+              const prioColors = {
+                low:      [100, 116, 139],   /* slate */
+                medium:   [37, 99, 235],     /* blue */
+                high:     [234, 88, 12],     /* orange */
+                critical: [220, 38, 38]      /* red */
+              };
+              let fill = prioColors[act.priority] || prioColors.medium;
               if (act.status === "pending") fill = [148, 163, 184];
 
               doc.setFillColor(fill[0], fill[1], fill[2]);
