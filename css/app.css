@@ -402,6 +402,7 @@
 
 /* row layout — left labels + timeline */
 .gnt-row {
+  --row-bg: var(--surface);
   display: grid;
   grid-template-columns:
     32px      /* num */
@@ -414,10 +415,10 @@
     auto;     /* timeline */
   align-items: stretch;
   border-bottom: 1px solid var(--line-soft);
-  background: var(--surface);
+  background: var(--row-bg);
   min-height: 38px;
 }
-.gnt-row.is-phase { background: linear-gradient(0deg, var(--bg-soft), var(--bg-soft)); }
+.gnt-row.is-phase { --row-bg: var(--bg-soft); }
 .gnt-row.is-phase > div:first-child,
 .gnt-row.is-phase > div { font-weight: 600; color: var(--ink); }
 .gnt-row.is-child > .gnt-c-name { padding-left: 1.85rem; color: var(--ink-soft); }
@@ -677,13 +678,41 @@
 .gnt-legend__sep { opacity: 0.5; padding: 0 0.25rem; }
 
 /* row marker on the left when row violates dependency */
-.gnt-row.is-violation { background: linear-gradient(0deg, #fef2f2, #fef2f2); }
+.gnt-row.is-violation { --row-bg: #fef2f2; }
 .gnt-row.is-violation .gnt-c-name::after {
   content: "⚠";
   margin-left: 0.4rem;
   color: var(--red);
   font-weight: 700;
 }
+
+/* ============================================================
+   FREEZE de las 7 columnas izquierdas al hacer scroll horizontal
+   (#, Actividad, Estado, Prioridad, Inicio, Fin, Acciones)
+   Cada celda se ancla con position:sticky + left acumulado.
+   Anchos:  32 + 230 + 120 + 120 + 108 + 108 + 62 = 780 px
+   ============================================================ */
+.gnt-row > div:nth-child(-n+7) {
+  position: sticky;
+  background: var(--row-bg);
+  z-index: 5;       /* > 4 (línea de HOY) y > barras */
+}
+.gnt-row > div:nth-child(1) { left: 0; }
+.gnt-row > div:nth-child(2) { left: 32px; }
+.gnt-row > div:nth-child(3) { left: 262px; }   /* 32+230 */
+.gnt-row > div:nth-child(4) { left: 382px; }   /* +120 */
+.gnt-row > div:nth-child(5) { left: 502px; }   /* +120 */
+.gnt-row > div:nth-child(6) { left: 610px; }   /* +108 */
+.gnt-row > div:nth-child(7) {
+  left: 718px;                                  /* +108 */
+  box-shadow: -2px 0 4px -2px rgba(15,23,42,0.08), 1px 0 0 var(--line);
+}
+
+/* el header (sticky-top) debe quedar por encima de las celdas
+   pegadizas de las filas; por eso un z-index mayor. */
+.gnt-header { z-index: 7; }
+.gnt-header > div:nth-child(-n+7) { z-index: 8; }
+.gnt-header > .gnt-c-timeline    { z-index: 7; }   /* sólo sticky-top */
 
 /* ============================================================
    MODALS

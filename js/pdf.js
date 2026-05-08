@@ -502,6 +502,35 @@
     const todayStr = project.today_override || new Date().toISOString().slice(0, 10);
     const todayOffset = diffDays(project.start_date, todayStr);
 
+    /* helper: ¿hay barras de ACTIVIDAD visibles en este chunk
+       (date-band × row-band)? Solo contamos actividades/sub-actividades.
+       Los headers de fase no cuentan porque su barra abarca toda la
+       fase y haría que se generen páginas con sólo la franja de fase
+       y los nombres de actividades sin barras. */
+    function hasContentInChunk(dayStart, dayEnd, rows) {
+      for (const item of rows) {
+        if (item.kind === "phase") continue;
+        const act = item.data;
+        const sOff = diffDays(project.start_date, act.start_date);
+        const eOff = diffDays(project.start_date, act.end_date) + 1;
+        if (eOff > dayStart && sOff < dayEnd) return true;
+      }
+      return false;
+    }
+
+    /* primera pasada: contar páginas con contenido (para "parte X de Y") */
+    let totalValidPages = 0;
+    for (let hh = 0; hh < totalChunksH; hh++) {
+      const dStart = hh * daysPerPage;
+      const dEnd   = Math.min(totalDays, dStart + daysPerPage);
+      for (let vv = 0; vv < verticalChunks; vv++) {
+        const rStart = vv * rowsPerPage;
+        const rEnd   = Math.min(ordered.length, rStart + rowsPerPage);
+        if (hasContentInChunk(dStart, dEnd, ordered.slice(rStart, rEnd))) totalValidPages++;
+      }
+    }
+    if (totalValidPages === 0) return startPageNo;
+
     let currentPage = startPageNo;
 
     /* ---------- páginas ---------- */
@@ -516,6 +545,9 @@
         const rowEnd   = Math.min(ordered.length, rowStart + rowsPerPage);
         const rows = ordered.slice(rowStart, rowEnd);
 
+        /* SALTAR páginas sin barras visibles (combinación date×row vacía) */
+        if (!hasContentInChunk(dayStart, dayEnd, rows)) continue;
+
         doc.addPage("a4", "landscape");
 
         /* page number */
@@ -529,8 +561,8 @@
         doc.setFontSize(12);
         doc.text("Figura 1", margin, margin);
         doc.setFont("times", "italic");
-        const partLabel = (totalChunksH > 1 || verticalChunks > 1)
-          ? ` (parte ${currentPage - startPageNo + 1} de ${totalChunksH * verticalChunks})`
+        const partLabel = totalValidPages > 1
+          ? ` (parte ${currentPage - startPageNo + 1} de ${totalValidPages})`
           : "";
         doc.text(`Diagrama de Gantt del cronograma${partLabel}`, margin, margin + 13);
 

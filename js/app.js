@@ -1606,6 +1606,372 @@
     }
   ];
 
+  /* ============================================================
+     PLANTILLA 32 SEMANAS · CRONOGRAMA «IA Y MEMORIA DE TRABAJO»
+     Réplica exacta del PDF de Albeiro Ramos Saldaña (LDT-UPN):
+     Fase 0 (Sem 1–2)   · Preparación y aval institucional
+     Fase 1 (Sem 3–9)   · OE1 — Diseño y validación de la escala
+     Fase 2 (Sem 10–19) · OE3 — Selección de muestra y aplicación
+     Fase 3 (Sem 20–26) · OE2 — Análisis estadístico y comparación
+     Fase Final (Sem 27–32) · Redacción y socialización
+     Cada actividad principal incluye sub-actividades (parent_id),
+     entregable/hito (description) y tipo (obligatoria/optativa).
+     ============================================================ */
+  const TPL_CRONOGRAMA_TESIS_IA = [
+    {
+      title: "FASE 0 · Preparación y Aval Institucional",
+      objective: "Asegurar las condiciones éticas, metodológicas y operativas de la investigación.",
+      color: "#4b5563",
+      activities: [
+        {
+          code: "0.1", title: "Revisión final del documento metodológico",
+          startWeek: 1, endWeek: 1, type: "obligatoria",
+          deliverable: "Documento metodológico aprobado por el director",
+          subs: [
+            "Verificación de coherencia hipótesis–objetivos–metodología",
+            "Ajustes finales al planteamiento del problema"
+          ]
+        },
+        {
+          code: "0.2", title: "Solicitud de aval del comité ético UPN",
+          startWeek: 2, endWeek: 2, type: "obligatoria",
+          deliverable: "Radicado de aval ético + consentimiento informado aprobado",
+          subs: [
+            "Preparación de documentación ética",
+            "Diseño del consentimiento informado para participantes",
+            "Radicación ante el comité de ética"
+          ]
+        },
+        {
+          code: "0.3", title: "Plan operativo y gestión de recursos",
+          startWeek: 3, endWeek: 3, type: "obligatoria",
+          deliverable: "Cronograma operativo y matriz de recursos",
+          subs: [
+            "Inventario de instrumentos y materiales requeridos",
+            "Programación de sesiones de tutoría con el director"
+          ]
+        },
+        {
+          code: "0.4", title: "Reunión inicial con director de tesis",
+          startWeek: 1, endWeek: 2, type: "optativa",
+          deliverable: "Acta de tutoría inicial",
+          subs: [
+            "Validación del alcance descriptivo–correlacional",
+            "Acuerdo sobre criterios de calidad del informe final"
+          ]
+        }
+      ]
+    },
+    {
+      title: "FASE 1 · OE1 — Diseño y Validación de la Escala (Dependencia IA)",
+      objective: "Construir y validar psicométricamente el instrumento que medirá la variable independiente (dependencia hacia herramientas de IA generativa).",
+      color: "#1d4ed8",
+      activities: [
+        {
+          code: "1.1", title: "Operacionalización de la variable «dependencia hacia IA»",
+          startWeek: 4, endWeek: 4, type: "obligatoria",
+          deliverable: "Tabla de operacionalización con dimensiones e indicadores",
+          subs: [
+            "Revisión específica de literatura sobre escalas de dependencia tecnológica",
+            "Definición de dimensiones: frecuencia, intensidad, tipo de uso, autonomía",
+            "Definición de indicadores conductuales observables"
+          ]
+        },
+        {
+          code: "1.2", title: "Construcción del banco inicial de ítems Likert",
+          startWeek: 5, endWeek: 5, type: "obligatoria",
+          deliverable: "Versión 1.0 del cuestionario (≈25–30 ítems)",
+          subs: [
+            "Redacción de ítems en escala Likert de 5 puntos",
+            "Codificación inversa de ítems control (sesgo de aquiescencia)",
+            "Maquetación digital del cuestionario en Google Forms"
+          ]
+        },
+        {
+          code: "1.3", title: "Validación por juicio de expertos",
+          startWeek: 6, endWeek: 6, type: "obligatoria",
+          deliverable: "Matriz de validación V de Aiken por ítem",
+          subs: [
+            "Identificación y contacto con 3–5 expertos (IA educativa y psicometría)",
+            "Envío de matriz de validación con criterios: claridad, relevancia, suficiencia",
+            "Sistematización de retroalimentación"
+          ]
+        },
+        {
+          code: "1.4", title: "Ajustes al instrumento según jueces expertos",
+          startWeek: 7, endWeek: 7, type: "obligatoria",
+          deliverable: "Versión 2.0 del cuestionario",
+          subs: [
+            "Reformulación de ítems con baja claridad",
+            "Eliminación o sustitución de ítems no pertinentes"
+          ]
+        },
+        {
+          code: "1.5", title: "Prueba piloto del cuestionario",
+          startWeek: 8, endWeek: 8, type: "obligatoria",
+          deliverable: "Base de datos piloto (n≈15–20)",
+          subs: [
+            "Aplicación a muestra reducida con perfil similar al objetivo",
+            "Registro de tiempos de respuesta y observaciones cualitativas"
+          ]
+        },
+        {
+          code: "1.6", title: "Análisis psicométrico de la prueba piloto",
+          startWeek: 9, endWeek: 9, type: "critical",
+          deliverable: "Hito Sem 9 · Informe de fiabilidad + Versión final del cuestionario (instrumento validado psicométricamente)",
+          subs: [
+            "Cálculo del Alfa de Cronbach (criterio: α ≥ 0,70)",
+            "Análisis de discriminación de ítems (correlación ítem-total)",
+            "Versión 3.0 (definitiva) del cuestionario"
+          ]
+        },
+        {
+          code: "1.7", title: "Segunda ronda de validación con expertos adicionales",
+          startWeek: 7, endWeek: 7, type: "optativa",
+          deliverable: "Validación reforzada del instrumento",
+          subs: [
+            "Consulta a dos expertos adicionales (línea de neurocognición)"
+          ]
+        },
+        {
+          code: "1.8", title: "Prueba piloto extendida en programa contiguo UPN",
+          startWeek: 8, endWeek: 8, type: "optativa",
+          deliverable: "Datos piloto adicionales para análisis comparativo",
+          subs: [
+            "Aplicación en otro programa de pregrado (n≈10)"
+          ]
+        }
+      ]
+    },
+    {
+      title: "FASE 2 · OE3 — Selección de Muestra y Aplicación de Pruebas (Memoria de Trabajo)",
+      objective: "Recolectar las mediciones individuales sobre dependencia hacia IA y rendimiento en memoria de trabajo en la muestra delimitada (LDT-UPN, 2.º semestre).",
+      color: "#b91c1c",
+      activities: [
+        {
+          code: "2.1", title: "Selección de la prueba estandarizada de memoria de trabajo",
+          startWeek: 10, endWeek: 10, type: "obligatoria",
+          deliverable: "Prueba seleccionada y justificada metodológicamente",
+          subs: [
+            "Cotejo entre alternativas: subprueba Dígitos del WAIS-IV, n-back, Corsi block-tapping",
+            "Decisión justificada según pertinencia, validez y disponibilidad",
+            "Adquisición de manual de aplicación y plantillas de registro"
+          ]
+        },
+        {
+          code: "2.2", title: "Capacitación del equipo aplicador",
+          startWeek: 11, endWeek: 11, type: "obligatoria",
+          deliverable: "Protocolo estandarizado de aplicación",
+          subs: [
+            "Estudio del manual técnico de la prueba",
+            "Práctica de administración entre pares",
+            "Estandarización de instrucciones verbales"
+          ]
+        },
+        {
+          code: "2.3", title: "Identificación y contacto con la población objetivo",
+          startWeek: 12, endWeek: 12, type: "obligatoria",
+          deliverable: "Listado de estudiantes potenciales contactados",
+          subs: [
+            "Coordinación con la dirección del programa LDT-UPN",
+            "Convocatoria a estudiantes de 2.º semestre",
+            "Verificación de criterios de inclusión"
+          ]
+        },
+        {
+          code: "2.4", title: "Firma de consentimientos informados",
+          startWeek: 13, endWeek: 13, type: "critical",
+          deliverable: "Hito Sem 12 · Consentimientos firmados — inicio formal del trabajo de campo",
+          subs: [
+            "Sesión informativa con interesados",
+            "Aclaración de derechos y manejo confidencial de datos"
+          ]
+        },
+        {
+          code: "2.5", title: "Aplicación del cuestionario de dependencia hacia IA",
+          startWeek: 14, endWeek: 14, type: "obligatoria",
+          deliverable: "Respuestas completas en Google Forms",
+          subs: [
+            "Aplicación virtual del instrumento validado",
+            "Seguimiento de respuestas no completadas",
+            "Verificación de completitud por participante"
+          ]
+        },
+        {
+          code: "2.6", title: "Aplicación de la prueba de memoria de trabajo",
+          startWeek: 15, endWeek: 16, type: "obligatoria",
+          deliverable: "Plantillas de registro individuales completas",
+          subs: [
+            "Programación de sesiones individuales (≈30 min/participante)",
+            "Aplicación estandarizada en condiciones controladas",
+            "Registro inmediato de puntuaciones brutas"
+          ]
+        },
+        {
+          code: "2.7", title: "Sistematización en base de datos",
+          startWeek: 17, endWeek: 19, type: "critical",
+          deliverable: "Hito Sem 19 · Base de datos limpia, depurada y lista para análisis (SPSS / Excel)",
+          subs: [
+            "Codificación de variables y etiquetado",
+            "Cálculo de puntuaciones tipificadas (z-scores)",
+            "Verificación cruzada de datos por dos personas (control de calidad)"
+          ]
+        },
+        {
+          code: "2.8", title: "Diario de campo del proceso de aplicación",
+          startWeek: 11, endWeek: 19, type: "optativa",
+          deliverable: "Bitácora cualitativa del trabajo de campo",
+          subs: [
+            "Registro narrativo de incidencias durante la aplicación"
+          ]
+        },
+        {
+          code: "2.9", title: "Re-aplicación a submuestra (fiabilidad test-retest)",
+          startWeek: 18, endWeek: 19, type: "optativa",
+          deliverable: "Coeficiente de estabilidad del instrumento",
+          subs: [
+            "Segunda aplicación a una submuestra (≈15% de la muestra)"
+          ]
+        }
+      ]
+    },
+    {
+      title: "FASE 3 · OE2 — Análisis Estadístico y Comparación con Literatura Internacional",
+      objective: "Establecer el grado de asociación entre dependencia hacia IA y memoria de trabajo, y contrastar los hallazgos con investigaciones internacionales (Kosmyna et al., 2025; Ju, 2023; Barrera Haro, 2025).",
+      color: "#b8860b",
+      activities: [
+        {
+          code: "3.1", title: "Estadística descriptiva de las variables",
+          startWeek: 20, endWeek: 21, type: "obligatoria",
+          deliverable: "Tablas y gráficos descriptivos finalizados",
+          subs: [
+            "Distribuciones de frecuencia y porcentajes",
+            "Medidas de tendencia central y dispersión (M, Mdn, DE, IQR)",
+            "Histogramas y diagramas de caja en SPSS / R"
+          ]
+        },
+        {
+          code: "3.2", title: "Verificación de supuestos estadísticos",
+          startWeek: 22, endWeek: 22, type: "obligatoria",
+          deliverable: "Reporte de pruebas de supuestos",
+          subs: [
+            "Prueba de normalidad (Shapiro-Wilk)",
+            "Detección y manejo de valores atípicos",
+            "Decisión sobre estadística paramétrica vs. no paramétrica"
+          ]
+        },
+        {
+          code: "3.3", title: "Análisis correlacional",
+          startWeek: 23, endWeek: 24, type: "critical",
+          deliverable: "Hito Sem 23 · Análisis correlacional concluido (contraste de hipótesis) — matriz de correlación con coeficientes y significancia",
+          subs: [
+            "Coeficiente de Pearson o Spearman (según supuestos)",
+            "Cálculo del tamaño del efecto (r²)",
+            "Análisis de significancia estadística (p < 0,05)"
+          ]
+        },
+        {
+          code: "3.4", title: "Comparación con literatura internacional",
+          startWeek: 25, endWeek: 25, type: "obligatoria",
+          deliverable: "Matriz comparativa Bogotá ↔ literatura global",
+          subs: [
+            "Contraste con Kosmyna et al. (2025) — MIT Media Lab, EEG",
+            "Contraste con Ju (2023) y Barrera Haro (2025)",
+            "Identificación de convergencias y divergencias por contexto"
+          ]
+        },
+        {
+          code: "3.5", title: "Triangulación e interpretación de hallazgos",
+          startWeek: 26, endWeek: 26, type: "critical",
+          deliverable: "Hito Sem 26 · Reporte estadístico finalizado + matriz comparativa internacional (borrador del capítulo de discusión)",
+          subs: [
+            "Lectura de hallazgos a la luz del marco teórico (Sweller, 1988; Clark & Chalmers, 1998; Siemens, 2005)",
+            "Discusión sobre la noción de «deuda cognitiva acumulativa»"
+          ]
+        },
+        {
+          code: "3.6", title: "Asesoría externa con especialista en estadística",
+          startWeek: 22, endWeek: 22, type: "optativa",
+          deliverable: "Validación externa del análisis",
+          subs: [
+            "Sesión de revisión metodológica del análisis correlacional"
+          ]
+        },
+        {
+          code: "3.7", title: "Análisis de regresión múltiple (variables de control)",
+          startWeek: 23, endWeek: 24, type: "optativa",
+          deliverable: "Modelo de regresión con variables de control",
+          subs: [
+            "Inclusión de variables sociodemográficas como covariables"
+          ]
+        }
+      ]
+    },
+    {
+      title: "FASE FINAL · Redacción del Informe Final y Socialización de Resultados",
+      objective: "Consolidar el documento final con calidad académica APA 7 y socializar los hallazgos ante la comunidad académica de la UPN.",
+      color: "#15803d",
+      activities: [
+        {
+          code: "F.1", title: "Redacción del capítulo de Resultados",
+          startWeek: 27, endWeek: 28, type: "obligatoria",
+          deliverable: "Capítulo de Resultados completo",
+          subs: [
+            "Tablas y gráficos en formato APA 7.ª edición",
+            "Narrativa descriptiva e interpretativa de los hallazgos"
+          ]
+        },
+        {
+          code: "F.2", title: "Redacción del capítulo de Discusión",
+          startWeek: 29, endWeek: 29, type: "obligatoria",
+          deliverable: "Capítulo de Discusión completo",
+          subs: [
+            "Conexión con marco teórico y antecedentes",
+            "Diálogo crítico con la literatura internacional"
+          ]
+        },
+        {
+          code: "F.3", title: "Conclusiones, recomendaciones y limitaciones",
+          startWeek: 30, endWeek: 30, type: "obligatoria",
+          deliverable: "Capítulo de Conclusiones",
+          subs: [
+            "Conclusiones alineadas con cada objetivo específico",
+            "Recomendaciones para futuras investigaciones",
+            "Reconocimiento de limitaciones del alcance descriptivo–correlacional"
+          ]
+        },
+        {
+          code: "F.4", title: "Revisión integral y ajustes editoriales",
+          startWeek: 31, endWeek: 31, type: "obligatoria",
+          deliverable: "Documento revisado en formato APA 7",
+          subs: [
+            "Verificación de citas y referencias APA 7",
+            "Corrección de estilo y ortotipografía",
+            "Verificación de coherencia interna (objetivos ↔ resultados ↔ conclusiones)"
+          ]
+        },
+        {
+          code: "F.5", title: "Entrega final y socialización",
+          startWeek: 32, endWeek: 32, type: "critical",
+          deliverable: "Hito Sem 32 · Documento final entregado y socializado ante el comité (defensa pública)",
+          subs: [
+            "Entrega al director de tesis y comité evaluador",
+            "Preparación de la defensa pública"
+          ]
+        },
+        {
+          code: "F.6", title: "Adaptación de artículo derivado para revista indexada",
+          startWeek: 30, endWeek: 32, type: "optativa",
+          deliverable: "Borrador de artículo (≈6.000 palabras)",
+          subs: [
+            "Adaptación del informe a formato de artículo científico",
+            "Selección de revista objetivo (Scopus / Publindex)"
+          ]
+        }
+      ]
+    }
+  ];
+
   /* helper: aplica una lista de fases (TPL_*) encadenando actividades */
   async function applyPhasesList(list) {
     let cursor = state.currentProject.start_date;
@@ -1657,6 +2023,235 @@
     await applyPhasesList(TPL_CRONOGRAMA_16B);
   }
 
+  /* ============================================================
+     CALENDARIO ACADÉMICO UPN — 32 SEMANAS DE CLASE EFECTIVA
+     ------------------------------------------------------------
+     Cada semana = lunes (Mon) → viernes (Fri). Si el lunes (o
+     viernes) es festivo colombiano, la semana se acorta a los
+     días hábiles restantes.
+
+     Festivos considerados en el rango (Ley Emiliani — Col):
+       2026-2 (ago–nov 2026):
+         · Vie 07-ago-2026 — Batalla de Boyacá  (Sem 1: lun-jue)
+         · Lun 17-ago-2026 — Asunción de la Virgen (Sem 3: mar-vie)
+         · Lun 12-oct-2026 — Día de la Raza      (Sem 11: mar-vie)
+         · Lun 02-nov-2026 — Todos los Santos    (Sem 14: mar-vie)
+         · Lun 16-nov-2026 — Indep. Cartagena    (Sem 16: mar-vie)
+
+       2027-1 (feb–may 2027):
+         · 22–28 mar 2027 — Semana Santa COMPLETA (omitida)
+             — Lun 22 San José, Jue 25 Jueves Santo, Vie 26 Viernes Santo
+         · Lun 17-may-2027 — Ascensión del Señor (Sem 31: mar-vie)
+
+     Resumen:
+       Sem 1–16  → 2026-2 (3-ago-2026 → 20-nov-2026)
+       Sem 17–32 → 2027-1 (1-feb-2027 → 28-may-2027)
+
+     Diciembre 2026 y enero 2027 quedan totalmente fuera (receso).
+     Pascua 2027 = 28-mar (computus). Sem 24 se reubica al 29-mar.
+     ============================================================ */
+  const ACADEMIC_WEEKS = [
+    /* ── 2026-2 (Sem 1–16) ─────────────────────────────────── */
+    { sem: 1,  start: "2026-08-03", end: "2026-08-06", semester: "2026-2", note: "Vie 7 festivo · Batalla de Boyacá" },
+    { sem: 2,  start: "2026-08-10", end: "2026-08-14", semester: "2026-2" },
+    { sem: 3,  start: "2026-08-18", end: "2026-08-21", semester: "2026-2", note: "Lun 17 festivo · Asunción de la Virgen" },
+    { sem: 4,  start: "2026-08-24", end: "2026-08-28", semester: "2026-2" },
+    { sem: 5,  start: "2026-08-31", end: "2026-09-04", semester: "2026-2" },
+    { sem: 6,  start: "2026-09-07", end: "2026-09-11", semester: "2026-2" },
+    { sem: 7,  start: "2026-09-14", end: "2026-09-18", semester: "2026-2" },
+    { sem: 8,  start: "2026-09-21", end: "2026-09-25", semester: "2026-2" },
+    { sem: 9,  start: "2026-09-28", end: "2026-10-02", semester: "2026-2" },
+    { sem: 10, start: "2026-10-05", end: "2026-10-09", semester: "2026-2" },
+    { sem: 11, start: "2026-10-13", end: "2026-10-16", semester: "2026-2", note: "Lun 12 festivo · Día de la Raza" },
+    { sem: 12, start: "2026-10-19", end: "2026-10-23", semester: "2026-2" },
+    { sem: 13, start: "2026-10-26", end: "2026-10-30", semester: "2026-2" },
+    { sem: 14, start: "2026-11-03", end: "2026-11-06", semester: "2026-2", note: "Lun 2 festivo · Todos los Santos" },
+    { sem: 15, start: "2026-11-09", end: "2026-11-13", semester: "2026-2" },
+    { sem: 16, start: "2026-11-17", end: "2026-11-20", semester: "2026-2", note: "Lun 16 festivo · Indep. Cartagena" },
+    /* ── Receso intersemestral · 21-nov-2026 → 31-ene-2027 ── */
+    /* ── 2027-1 (Sem 17–32) ──────────────────────────────── */
+    { sem: 17, start: "2027-02-01", end: "2027-02-05", semester: "2027-1" },
+    { sem: 18, start: "2027-02-08", end: "2027-02-12", semester: "2027-1" },
+    { sem: 19, start: "2027-02-15", end: "2027-02-19", semester: "2027-1" },
+    { sem: 20, start: "2027-02-22", end: "2027-02-26", semester: "2027-1" },
+    { sem: 21, start: "2027-03-01", end: "2027-03-05", semester: "2027-1" },
+    { sem: 22, start: "2027-03-08", end: "2027-03-12", semester: "2027-1" },
+    { sem: 23, start: "2027-03-15", end: "2027-03-19", semester: "2027-1" },
+    /* ── Semana Santa · 22-mar → 28-mar-2027 (omitida) ──
+       absorbe San José (Lun 22), Jueves Santo (Jue 25)
+       y Viernes Santo (Vie 26). Pascua = Dom 28-mar.        */
+    { sem: 24, start: "2027-03-29", end: "2027-04-02", semester: "2027-1" },
+    { sem: 25, start: "2027-04-05", end: "2027-04-09", semester: "2027-1" },
+    { sem: 26, start: "2027-04-12", end: "2027-04-16", semester: "2027-1" },
+    { sem: 27, start: "2027-04-19", end: "2027-04-23", semester: "2027-1" },
+    { sem: 28, start: "2027-04-26", end: "2027-04-30", semester: "2027-1" },
+    { sem: 29, start: "2027-05-03", end: "2027-05-07", semester: "2027-1" },
+    { sem: 30, start: "2027-05-10", end: "2027-05-14", semester: "2027-1" },
+    { sem: 31, start: "2027-05-18", end: "2027-05-21", semester: "2027-1", note: "Lun 17 festivo · Ascensión del Señor" },
+    { sem: 32, start: "2027-05-24", end: "2027-05-28", semester: "2027-1" }
+  ];
+
+  function weekToRangeISO(sw, ew) {
+    const a = ACADEMIC_WEEKS[sw - 1];
+    const b = ACADEMIC_WEEKS[ew - 1];
+    return [a.start, b.end];
+  }
+
+  function semesterLabelFor(sw, ew) {
+    const a = ACADEMIC_WEEKS[sw - 1];
+    const b = ACADEMIC_WEEKS[ew - 1];
+    if (a.semester === b.semester) return a.semester;
+    return `${a.semester} → ${b.semester} (cruza receso)`;
+  }
+
+  function weekNotesFor(sw, ew) {
+    const notes = [];
+    for (let w = sw; w <= ew; w++) {
+      const ww = ACADEMIC_WEEKS[w - 1];
+      if (ww?.note) notes.push(`Sem ${w}: ${ww.note}`);
+    }
+    return notes;
+  }
+
+  /* helper: aplica una lista de fases con rangos de semanas
+     académicas (startWeek/endWeek) y sub-actividades vía parent_id. */
+  async function applyPhasesListWeekBased(list) {
+    /* Forzar fechas del proyecto al rango académico 2026-2 + 2027-1. */
+    const [projectStart] = weekToRangeISO(1, 1);
+    const [, projectEnd] = weekToRangeISO(32, 32);
+    const patch = {};
+    if (state.currentProject.start_date !== projectStart) patch.start_date = projectStart;
+    if (state.currentProject.end_date   !== projectEnd)   patch.end_date   = projectEnd;
+    if (Object.keys(patch).length) {
+      const updated = await window.STORE.updateProject(state.currentProject.id, patch);
+      if (updated) state.currentProject = updated;
+      else Object.assign(state.currentProject, patch);
+    }
+
+    const weekRange = weekToRangeISO;
+
+    const priorityFor = t => t === "critical" ? "critical" : (t === "optativa" ? "low" : "high");
+    const labelFor    = t => t === "optativa" ? "Optativa" : "Obligatoria";
+    const SEM_LAST_2026_2 = 16;   /* última semana del 2026-2 */
+
+    /* helper interno: crea una "instancia" de actividad (con sus subs)
+       para un rango de semanas concreto. Devuelve la id de la principal. */
+    async function createOne({ phaseId, code, title, type, deliverable, subs,
+                                sw, ew, suffix, prevId }) {
+      const [start, end] = weekRange(sw, ew);
+      const semLabel = sw === ew ? `Sem ${sw}` : `Sem ${sw}–${ew}`;
+      const semester = semesterLabelFor(sw, ew);
+      const notes    = weekNotesFor(sw, ew);
+      const description =
+        `[${labelFor(type)}] · ${semLabel} · Semestre ${semester}\n` +
+        `Entregable / Hito: ${deliverable}` +
+        (notes.length ? `\nFestivos en el rango: ${notes.join(" · ")}` : "");
+
+      const main = await window.STORE.createActivity(state.currentProject.id, {
+        title:          `${code} · ${title}${suffix || ""}`,
+        description,
+        phase_id:       phaseId,
+        start_date:     start,
+        end_date:       end,
+        status:         "pending",
+        priority:       priorityFor(type),
+        predecessor_id: prevId || null,
+        progress:       0
+      });
+
+      for (const sub of (subs || [])) {
+        await window.STORE.createActivity(state.currentProject.id, {
+          title:      sub,
+          phase_id:   phaseId,
+          parent_id:  main.id,
+          start_date: start,
+          end_date:   end,
+          status:     "pending",
+          priority:   type === "optativa" ? "low" : "medium",
+          progress:   0
+        });
+      }
+      return main.id;
+    }
+
+    for (const ph of list) {
+      const phase = await window.STORE.createPhase(state.currentProject.id, {
+        title:     ph.title,
+        objective: ph.objective,
+        color:     ph.color
+      });
+      for (const act of ph.activities) {
+        const crossesReceso =
+          act.startWeek <= SEM_LAST_2026_2 && act.endWeek > SEM_LAST_2026_2;
+
+        if (crossesReceso) {
+          /* Parte 1 (2026-2) — Sem startWeek..16, con sub-actividades.
+             Parte 2 (2027-1) — Sem 17..endWeek, predecesora = Parte 1.
+             Así no se dibuja una barra continua sobre el receso de
+             dic-2026 / ene-2027. */
+          const id1 = await createOne({
+            phaseId:     phase.id,
+            code:        act.code,
+            title:       act.title,
+            type:        act.type,
+            deliverable: act.deliverable,
+            subs:        act.subs,
+            sw:          act.startWeek,
+            ew:          SEM_LAST_2026_2,
+            suffix:      "  (parte 1 · 2026-2)"
+          });
+          await createOne({
+            phaseId:     phase.id,
+            code:        act.code,
+            title:       act.title,
+            type:        act.type,
+            deliverable: act.deliverable,
+            subs:        [],                 /* ya se crearon bajo la parte 1 */
+            sw:          SEM_LAST_2026_2 + 1,
+            ew:          act.endWeek,
+            suffix:      "  (parte 2 · 2027-1, continuación)",
+            prevId:      id1
+          });
+          continue;
+        }
+
+        await createOne({
+          phaseId:     phase.id,
+          code:        act.code,
+          title:       act.title,
+          type:        act.type,
+          deliverable: act.deliverable,
+          subs:        act.subs,
+          sw:          act.startWeek,
+          ew:          act.endWeek
+        });
+      }
+    }
+    await loadPhasesAndActivities();
+    paintPhaseList();
+    paintHero();
+    renderGantt();
+    playSound("add");
+  }
+
+  async function applyCronogramaTesisIA() {
+    const ok = await appConfirm({
+      kind: "info",
+      title: "Cargar cronograma «IA y memoria de trabajo» (32 semanas · PDF)",
+      message:
+        "Se crearán las 5 fases del PDF con 34 actividades, sub-actividades, entregables e hitos de control.\n\n" +
+        "Calendario académico UPN — solo días de clase (lunes a viernes), sin sábados, domingos, festivos, diciembre/enero ni Semana Santa:\n" +
+        "• Sem 1–16 → 2026-2 · 03-ago-2026 → 20-nov-2026\n" +
+        "• Sem 17–32 → 2027-1 · 01-feb-2027 → 28-may-2027\n\n" +
+        "Las actividades que cruzan el receso intersemestral (Nov-2026 → Feb-2027) se dividen en parte 1 + parte 2 enlazadas, para que el diagrama no muestre trabajo durante diciembre/enero.\n\n" +
+        "Cada actividad indica en su descripción los festivos que caen dentro de su rango. Las fechas de inicio y cierre del proyecto se ajustarán automáticamente.",
+      okText: "Cargar cronograma",
+      cancelText: "Cancelar"
+    });
+    if (!ok) return;
+    await applyPhasesListWeekBased(TPL_CRONOGRAMA_TESIS_IA);
+  }
+
   async function applyCronograma32() {
     const ok = await appConfirm({
       kind: "info",
@@ -1686,6 +2281,7 @@
     if (key === "cronograma16")  { await applyCronograma16();  return; }
     if (key === "cronograma16b") { await applyCronograma16B(); return; }
     if (key === "cronograma32")  { await applyCronograma32();  return; }
+    if (key === "tesis-ia")      { await applyCronogramaTesisIA(); return; }
     if (key === "all") {
       const ok = await appConfirm({
         kind: "info",

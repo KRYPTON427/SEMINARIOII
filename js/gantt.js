@@ -90,16 +90,29 @@
       }
     });
 
-    /* cruces: dos actividades sin relación padre-hijo y sin dependencia
-       que comparten al menos un día. Avisamos solo si ambas son del mismo
-       contexto (mismo phase_id) o entre actividades top-level. */
+    /* cruces: dos actividades top-level OBLIGATORIAS que comparten al
+       menos un día. Excluimos:
+        · sub-actividades (parent_id) — comparten fecha con su padre
+          por diseño y son ítems descriptivos, no rompen la planificación
+        · actividades optativas — son opcionales/secundarias y pueden
+          correr en paralelo a las obligatorias sin problema.
+       Una optativa se identifica por priority="low" + descripción que
+       comienza con "[Optativa]" (la inserta la plantilla del PDF). */
+    const isSub = a => !!a.parent_id;
+    const isOptional = a =>
+      a.priority === "low" &&
+      typeof a.description === "string" &&
+      /^\s*\[Optativa\]/i.test(a.description);
+
     for (let i = 0; i < activities.length; i++) {
       for (let j = i + 1; j < activities.length; j++) {
         const x = activities[i], y = activities[j];
-        /* ignorar parent-child */
-        if (x.parent_id === y.id || y.parent_id === x.id) continue;
+        /* ignorar parent-child y sub-actividades en general */
+        if (isSub(x) || isSub(y)) continue;
         /* ignorar si una depende de la otra */
         if (x.predecessor_id === y.id || y.predecessor_id === x.id) continue;
+        /* ignorar cuando alguna es optativa (paralelas al cronograma) */
+        if (isOptional(x) || isOptional(y)) continue;
 
         const xs = parseDate(x.start_date), xe = parseDate(x.end_date);
         const ys = parseDate(y.start_date), ye = parseDate(y.end_date);
