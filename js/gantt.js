@@ -164,16 +164,19 @@
 
     const phaseById = new Map(phases.map(p => [p.id, p]));
 
-    /* === header de meses / semanas / días ===
-       dateLabelMode: "real" (Ago 26 · S32) o "relative" (Mes 1 · Sem 1) */
+    /* === header: año / mes / semana / día ===
+       dateLabelMode: "real" (2026 · Ago · S32) o "relative" (Año 1 · Mes 1 · Sem 1) */
     const dateLabelMode = (project && project.date_label_mode) || "real";
     const startDate = parseDate(start);
-    const monthBlocks = [];   /* {label, span} */
-    const weekBlocks  = [];   /* {label, span} */
+    const yearBlocks  = [];
+    const monthBlocks = [];
+    const weekBlocks  = [];
     let daysHTML = "";
 
+    let yCur = -1, ySpan = 0;
     let mCur = -1, mSpan = 0, mYear = 0;
     let wCur = -1, wSpan = 0;
+    let yearCounter = 0;
     let monthCounter = 0;
     let weekCounter = 0;
 
@@ -183,17 +186,28 @@
       const m = dt.getMonth(); const y = dt.getFullYear();
       const w = isoWeekNum(dt);
 
+      if (y !== yCur) {
+        if (ySpan > 0) {
+          const lbl = dateLabelMode === "relative" ? `Año ${yearCounter}` : `${yCur}`;
+          yearBlocks.push({ label: lbl, span: ySpan });
+        }
+        yCur = y; ySpan = 0;
+        yearCounter++;
+      }
+      ySpan++;
+
       if (m !== mCur) {
         if (mSpan > 0) {
           const lbl = dateLabelMode === "relative"
             ? `Mes ${monthCounter}`
-            : `${MONTHS_ES[mCur]} ${String(mYear).slice(2)}`;
+            : MONTHS_ES[mCur];
           monthBlocks.push({ label: lbl, span: mSpan });
         }
         mCur = m; mYear = y; mSpan = 0;
         monthCounter++;
       }
       mSpan++;
+
       if (w !== wCur) {
         if (wSpan > 0) {
           const lbl = dateLabelMode === "relative" ? `Sem ${weekCounter}` : `S${wCur}`;
@@ -211,14 +225,19 @@
       daysHTML += `<div class="gnt-day ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}">${dayLabel}</div>`;
     }
     {
+      const yLbl = dateLabelMode === "relative" ? `Año ${yearCounter}` : `${yCur}`;
+      yearBlocks.push({ label: yLbl, span: ySpan });
       const monthLbl = dateLabelMode === "relative"
         ? `Mes ${monthCounter}`
-        : `${MONTHS_ES[mCur]} ${String(mYear).slice(2)}`;
+        : MONTHS_ES[mCur];
       monthBlocks.push({ label: monthLbl, span: mSpan });
       const weekLbl = dateLabelMode === "relative" ? `Sem ${weekCounter}` : `S${wCur}`;
       weekBlocks.push({ label: weekLbl, span: wSpan });
     }
 
+    const yearsHTML = yearBlocks.map(b =>
+      `<div class="gnt-year" style="grid-column: span ${b.span}">${b.label}</div>`
+    ).join("");
     const monthsHTML = monthBlocks.map(b =>
       `<div class="gnt-month" style="grid-column: span ${b.span}">${b.label}</div>`
     ).join("");
@@ -257,23 +276,11 @@
       });
     }
 
-    /* === construye HTML de filas === */
-    let rowsHTML = "";
+    /* === construye HTML de filas (split: izquierda + derecha) === */
+    let leftRowsHTML  = "";   /* labels: # · actividad · estado · prioridad · fechas · acciones */
+    let rightRowsHTML = "";   /* tracks: línea de tiempo con barras */
     let activityCounter = 0;
-
-    if (orderedRows.length === 0) {
-      rowsHTML = `
-        <div class="gnt-empty">
-          <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true">
-            <rect x="8" y="14" width="48" height="42" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
-            <path d="M8 24h48M20 8v10M44 8v10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
-            <rect x="16" y="32" width="14" height="3" fill="currentColor" opacity="0.4"/>
-            <rect x="22" y="40" width="20" height="3" fill="currentColor" opacity="0.4"/>
-          </svg>
-          <h4>Tu cronograma está vacío</h4>
-          <p>Empieza creando una <b>fase</b> (ej. Marco teórico) y luego agrega actividades dentro de ella.</p>
-        </div>`;
-    }
+    const emptyState = orderedRows.length === 0;
 
     orderedRows.forEach(row => {
       if (row.kind === "phase") {
@@ -289,20 +296,20 @@
           const width = dur * DAY_W;
           barHTML = `<div class="gnt-bar gnt-bar--phase" style="left:${left}px; width:${width}px; background:linear-gradient(135deg, ${ph.color}, ${darken(ph.color, 0.6)});" title="${escapeHtml(ph.title)}"></div>`;
         }
-        rowsHTML += `
-          <div class="gnt-row is-phase" data-phase-id="${ph.id ?? ''}">
+        leftRowsHTML += `
+          <div class="gnt-row is-phase gnt-row--left" data-phase-id="${ph.id ?? ''}">
             <div class="gnt-c-num" style="background:${ph.color}; color:#fff; border-radius:0;"></div>
             <div class="gnt-c-name" data-action="edit-phase" style="cursor:pointer">
               <strong>${escapeHtml(ph.title)}</strong>
             </div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
+            <div></div><div></div><div></div><div></div>
             <div class="gnt-c-actions">
               ${ph._virtual ? "" : `<button class="gnt-icon-btn" data-action="add-activity-in-phase" title="Agregar actividad en esta fase" aria-label="Agregar actividad en esta fase">+</button>
               <button class="gnt-icon-btn gnt-icon-btn--del" data-action="delete-phase" title="Eliminar fase" aria-label="Eliminar fase">×</button>`}
             </div>
+          </div>`;
+        rightRowsHTML += `
+          <div class="gnt-row is-phase gnt-row--right" data-phase-id="${ph.id ?? ''}">
             <div class="gnt-c-track" style="--day-w:${DAY_W}px; width:${timelineWidth}px;">
               ${barHTML}
             </div>
@@ -328,8 +335,8 @@
       const rowClass = level === 2 ? "is-child" : "";
       const violationCls = isViolation ? " is-violation" : "";
 
-      rowsHTML += `
-        <div class="gnt-row ${rowClass}${violationCls}" data-activity-id="${a.id}">
+      leftRowsHTML += `
+        <div class="gnt-row gnt-row--left ${rowClass}${violationCls}" data-activity-id="${a.id}">
           <div class="gnt-c-num">${numLabel}</div>
           <div class="gnt-c-name" data-action="edit-activity" title="Click para editar">
             ${escapeHtml(a.title)}
@@ -359,6 +366,10 @@
             ${level === 1 ? `<button class="gnt-icon-btn" data-action="add-sub" title="Agregar sub-actividad" aria-label="Agregar sub-actividad">+</button>` : ""}
             <button class="gnt-icon-btn gnt-icon-btn--del" data-action="delete-activity" title="Eliminar actividad" aria-label="Eliminar actividad">×</button>
           </div>
+        </div>`;
+
+      rightRowsHTML += `
+        <div class="gnt-row gnt-row--right ${rowClass}${violationCls}" data-activity-id="${a.id}">
           <div class="gnt-c-track" style="--day-w:${DAY_W}px; width:${timelineWidth}px;">
             <div class="gnt-bar gnt-bar--${a.status}" data-prio="${a.priority}"
                  style="left:${left}px; width:${width}px; background:${a.status==='pending' ? '#94a3b8' : `linear-gradient(135deg, ${phaseColor}, ${darken(phaseColor, 0.6)})`};"
@@ -379,6 +390,20 @@
     const inProg    = activities.filter(a => a.status === "progress").length;
     const pending   = activities.filter(a => a.status === "pending").length;
 
+    /* layout split: izquierda fija, derecha con scroll horizontal.
+       El scroll vertical de los dos cuerpos se sincroniza por JS. */
+    const emptyHTML = emptyState ? `
+      <div class="gnt-empty">
+        <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true">
+          <rect x="8" y="14" width="48" height="42" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 24h48M20 8v10M44 8v10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <rect x="16" y="32" width="14" height="3" fill="currentColor" opacity="0.4"/>
+          <rect x="22" y="40" width="20" height="3" fill="currentColor" opacity="0.4"/>
+        </svg>
+        <h4>Tu cronograma está vacío</h4>
+        <p>Empieza creando una <b>fase</b> (ej. Marco teórico) y luego agrega actividades dentro de ella.</p>
+      </div>` : "";
+
     host.innerHTML = `
       <div class="gnt-toolbar">
         <button class="app-btn app-btn--primary app-btn--sm" id="gnt-add-activity">
@@ -391,34 +416,49 @@
         <span class="gnt-pill gnt-pill--pending">○ ${pending} pendientes</span>
       </div>
 
-      <div class="gnt-scroll">
-        <div class="gnt-table">
-          <!-- HEADER -->
-          <div class="gnt-header gnt-row">
-            <div class="gnt-c-num">#</div>
-            <div class="gnt-c-name">Actividad</div>
-            <div>Estado</div>
-            <div>Prioridad</div>
-            <div>Inicio</div>
-            <div>Fin</div>
-            <div style="text-align:center;">Acciones</div>
-            <div class="gnt-c-timeline" style="width:${timelineWidth}px;">
-              <div class="gnt-months" style="grid-template-columns: repeat(${totalDays}, ${DAY_W}px);">${monthsHTML}</div>
-              <div class="gnt-weeks"  style="grid-template-columns: repeat(${totalDays}, ${DAY_W}px);">${weeksHTML}</div>
-              <div class="gnt-days"   style="grid-template-columns: repeat(${totalDays}, ${DAY_W}px);">${daysHTML}</div>
+      ${emptyState ? emptyHTML : `
+      <div class="gnt-split">
+        <!-- PANEL IZQUIERDO (fijo en horizontal) -->
+        <div class="gnt-pane gnt-pane--left">
+          <div class="gnt-pane__head">
+            <div class="gnt-row gnt-header gnt-row--left">
+              <div class="gnt-c-num">#</div>
+              <div class="gnt-c-name">Actividad</div>
+              <div>Estado</div>
+              <div>Prioridad</div>
+              <div>Inicio</div>
+              <div>Fin</div>
+              <div style="text-align:center;">Acciones</div>
             </div>
           </div>
-
-          <!-- ROWS -->
-          <div class="gnt-rows" style="position:relative;">
-            ${rowsHTML}
-            ${todayInRange ? `
-              <div class="gnt-today-line" style="left: calc(32px + 230px + 120px + 120px + 108px + 108px + 62px + 1px + ${todayOffset * DAY_W}px);">
-                <span>HOY</span>
-              </div>` : ""}
+          <div class="gnt-pane__body" id="gnt-left-body">
+            ${leftRowsHTML}
           </div>
         </div>
-      </div>
+
+        <!-- PANEL DERECHO (scroll horizontal + vertical) -->
+        <div class="gnt-pane gnt-pane--right" id="gnt-right">
+          <div class="gnt-pane__inner" style="width:${timelineWidth}px;">
+            <div class="gnt-pane__head">
+              <div class="gnt-row gnt-header gnt-row--right">
+                <div class="gnt-c-timeline" style="width:${timelineWidth}px;">
+                  <div class="gnt-years"  style="grid-template-columns: repeat(${totalDays}, ${DAY_W}px);">${yearsHTML}</div>
+                  <div class="gnt-months" style="grid-template-columns: repeat(${totalDays}, ${DAY_W}px);">${monthsHTML}</div>
+                  <div class="gnt-weeks"  style="grid-template-columns: repeat(${totalDays}, ${DAY_W}px);">${weeksHTML}</div>
+                  <div class="gnt-days"   style="grid-template-columns: repeat(${totalDays}, ${DAY_W}px);">${daysHTML}</div>
+                </div>
+              </div>
+            </div>
+            <div class="gnt-pane__body" id="gnt-right-body" style="position:relative;">
+              ${rightRowsHTML}
+              ${todayInRange ? `
+                <div class="gnt-today-line" style="left: ${todayOffset * DAY_W}px;">
+                  <span>HOY</span>
+                </div>` : ""}
+            </div>
+          </div>
+        </div>
+      </div>`}
 
       <div class="gnt-legend">
         ${phases.map(p => `<span><i style="background:${p.color}"></i>${escapeHtml(p.title)}</span>`).join("")}
@@ -432,6 +472,19 @@
     `;
 
     bindEvents(host, handlers);
+
+    /* sync de scroll vertical entre panel izquierdo y derecho.
+       El scroll horizontal solo lo tiene el panel derecho. */
+    const leftBody  = host.querySelector("#gnt-left-body");
+    const rightBody = host.querySelector("#gnt-right-body");
+    if (leftBody && rightBody) {
+      let lock = false;
+      const syncLR = () => { if (lock) return; lock = true; leftBody.scrollTop = rightBody.scrollTop; lock = false; };
+      const syncRL = () => { if (lock) return; lock = true; rightBody.scrollTop = leftBody.scrollTop; lock = false; };
+      rightBody.addEventListener("scroll", syncLR, { passive: true });
+      leftBody.addEventListener("scroll", syncRL, { passive: true });
+    }
+
     /* Mejora visual de los <select> de estado/prioridad */
     if (window.APP_UI && window.APP_UI.enhanceAllSelectsIn) {
       window.APP_UI.enhanceAllSelectsIn(host);

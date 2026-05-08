@@ -392,18 +392,74 @@
 .gnt-pill--progress  { background: #fef3c7; color: #92400e; border-color: #fde68a; }
 .gnt-pill--pending   { background: #f1f5f9; color: var(--ink-soft); border-color: var(--line); }
 
-/* scroll */
+/* scroll (legacy single-pane — mantengo por compatibilidad) */
 .gnt-scroll {
-  max-height: calc(100vh - 230px);   /* aprovecha toda la altura disponible */
+  max-height: calc(100vh - 230px);
   overflow: auto;
   position: relative;
 }
 .gnt-table { display: flex; flex-direction: column; min-width: 100%; }
 
-/* row layout — left labels + timeline.
-   Usamos FLEXBOX en vez de Grid: position:sticky funciona de forma
-   más predecible con flex (algunos navegadores rompen el ancho de
-   las celdas cuando combinas grid items + sticky en scroll horizontal). */
+/* ============================================================
+   SPLIT-PANE LAYOUT (panel izquierdo fijo + timeline a la derecha)
+   ------------------------------------------------------------
+   - .gnt-pane--left  : ancho fijo 780px, NO se mueve en horizontal
+   - .gnt-pane--right : crece, scroll horizontal + vertical
+   - El sync vertical lo hace JS (rightBody → leftBody.scrollTop)
+   ============================================================ */
+.gnt-split {
+  display: flex;
+  align-items: stretch;
+  max-height: calc(100vh - 230px);
+  overflow: hidden;
+  background: var(--surface);
+}
+.gnt-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;        /* permite que body haga overflow */
+}
+.gnt-pane--left {
+  width: 780px;
+  flex-shrink: 0;
+  flex-grow: 0;
+  border-right: 2px solid var(--line);
+  z-index: 2;
+  background: var(--surface);
+}
+.gnt-pane--right {
+  flex-grow: 1;
+  flex-shrink: 1;
+  min-width: 0;          /* permite shrinking dentro de .gnt-split */
+  overflow-x: auto;      /* scroll horizontal del timeline */
+  overflow-y: hidden;
+}
+.gnt-pane__inner {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* width inline = timelineWidth (puede ser muy ancho) */
+}
+.gnt-pane__head {
+  flex-shrink: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.gnt-pane__body {
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+/* Ocultamos la barra de scroll vertical del panel izquierdo
+   (la del derecho es la "oficial"; el sync mantiene ambos alineados). */
+.gnt-pane--left .gnt-pane__body { scrollbar-width: none; }
+.gnt-pane--left .gnt-pane__body::-webkit-scrollbar { display: none; }
+
+/* row layout. Hay dos variantes:
+    .gnt-row--left  → 7 celdas de etiqueta (sumadas = 780px)
+    .gnt-row--right → 1 celda de timeline (width inline)
+   Cada panel del split renderiza solo su mitad correspondiente. */
 .gnt-row {
   --row-bg: var(--surface);
   display: flex;
@@ -413,14 +469,19 @@
   min-height: 38px;
 }
 .gnt-row > div { flex-shrink: 0; box-sizing: border-box; }
-.gnt-row > div:nth-child(1) { width: 32px;  }   /* # */
-.gnt-row > div:nth-child(2) { width: 230px; }   /* nombre */
-.gnt-row > div:nth-child(3) { width: 120px; }   /* estado */
-.gnt-row > div:nth-child(4) { width: 120px; }   /* prioridad */
-.gnt-row > div:nth-child(5) { width: 108px; }   /* inicio */
-.gnt-row > div:nth-child(6) { width: 108px; }   /* fin */
-.gnt-row > div:nth-child(7) { width: 62px;  }   /* acciones */
-.gnt-row > div:nth-child(8) { flex-grow: 0; }   /* timeline (width inline) */
+
+/* Variante IZQUIERDA: 7 columnas fijas suman 780px */
+.gnt-row--left { width: 780px; }
+.gnt-row--left > div:nth-child(1) { width: 32px;  }   /* # */
+.gnt-row--left > div:nth-child(2) { width: 230px; }   /* nombre */
+.gnt-row--left > div:nth-child(3) { width: 120px; }   /* estado */
+.gnt-row--left > div:nth-child(4) { width: 120px; }   /* prioridad */
+.gnt-row--left > div:nth-child(5) { width: 108px; }   /* inicio */
+.gnt-row--left > div:nth-child(6) { width: 108px; }   /* fin */
+.gnt-row--left > div:nth-child(7) { width: 62px;  }   /* acciones */
+
+/* Variante DERECHA: una sola celda (track) que ocupa el ancho del timeline */
+.gnt-row--right > .gnt-c-track { flex-grow: 1; }
 .gnt-row.is-phase { --row-bg: var(--bg-soft); }
 .gnt-row.is-phase > div:first-child,
 .gnt-row.is-phase > div { font-weight: 600; color: var(--ink); }
@@ -429,9 +490,9 @@
   content: "↳"; margin-right: 0.4rem; color: var(--ink-mute);
 }
 
-/* header */
+/* header (en split-pane el head ya está fuera del body que scrollea,
+   así que no necesita sticky) */
 .gnt-header {
-  position: sticky; top: 0; z-index: 6;
   background: var(--surface);
   border-bottom: 1px solid var(--line);
   font-family: var(--font-mono);
@@ -441,6 +502,8 @@
   text-transform: uppercase;
 }
 .gnt-header > div { padding: 0.55rem 0.6rem; align-self: center; }
+/* en el panel derecho (timeline), el header no debe tener padding extra */
+.gnt-row.gnt-header.gnt-row--right > .gnt-c-timeline { padding: 0; }
 
 /* cell base */
 .gnt-row > div {
@@ -689,33 +752,22 @@
   font-weight: 700;
 }
 
-/* ============================================================
-   FREEZE de las 7 columnas izquierdas al hacer scroll horizontal
-   (#, Actividad, Estado, Prioridad, Inicio, Fin, Acciones)
-   Cada celda se ancla con position:sticky + left acumulado.
-   Anchos:  32 + 230 + 120 + 120 + 108 + 108 + 62 = 780 px
-   ============================================================ */
-.gnt-row > div:nth-child(-n+7) {
-  position: sticky;
-  background: var(--row-bg);
-  z-index: 5;       /* > 4 (línea de HOY) y > barras */
+/* AÑO — banda superior del header */
+.gnt-years {
+  display: grid;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, #1e293b, #334155);
 }
-.gnt-row > div:nth-child(1) { left: 0; }
-.gnt-row > div:nth-child(2) { left: 32px; }
-.gnt-row > div:nth-child(3) { left: 262px; }   /* 32+230 */
-.gnt-row > div:nth-child(4) { left: 382px; }   /* +120 */
-.gnt-row > div:nth-child(5) { left: 502px; }   /* +120 */
-.gnt-row > div:nth-child(6) { left: 610px; }   /* +108 */
-.gnt-row > div:nth-child(7) {
-  left: 718px;                                  /* +108 */
-  box-shadow: -2px 0 4px -2px rgba(15,23,42,0.08), 1px 0 0 var(--line);
+.gnt-year {
+  padding: 0.3rem 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+  color: #f8fafc;
+  border-right: 1px solid rgba(255,255,255,0.15);
+  font-family: var(--font-mono);
+  letter-spacing: 0.1em;
 }
-
-/* el header (sticky-top) debe quedar por encima de las celdas
-   pegadizas de las filas; por eso un z-index mayor. */
-.gnt-header { z-index: 7; }
-.gnt-header > div:nth-child(-n+7) { z-index: 8; }
-.gnt-header > .gnt-c-timeline    { z-index: 7; }   /* sólo sticky-top */
 
 /* ============================================================
    MODALS
