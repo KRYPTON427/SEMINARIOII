@@ -520,31 +520,44 @@
     if (cStart >= 0) dateChunks.push({ dayStart: cStart, dayEnd: totalDays - gapLen });
     if (!dateChunks.length) dateChunks.push({ dayStart: 0, dayEnd: totalDays });
 
-    /* dayW por chunk: priorizamos NO cortar barras. Cada semestre cabe
-       en una sola página horizontal (110d → dayW≈5.3 / 117d → dayW≈5).
-       Solo subdividimos si el chunk es ridículamente largo (proyecto
-       fuera del modo "32 semanas"). */
+    /* dayW por chunk: queremos labels y números legibles (dayW>=9)
+       y al mismo tiempo NO cortar barras. Subdividimos cada semestre,
+       pero en lugar de cortar en seco a los 65 días, buscamos hacia
+       atrás un día de "gap" (sin actividad activa, típicamente un
+       fin de semana) cerca del corte natural — ahí cae el split. */
     const expandedChunks = [];
+    const dpp = Math.floor(availTimelineW / idealDayW);  /* ≈ 65 */
     for (const c of dateChunks) {
       const days = c.dayEnd - c.dayStart;
       const fit  = availTimelineW / days;
-      if (fit >= minDayW) {
-        /* el chunk cabe entero — usamos fitW (con tope maxDayW) */
+      if (fit >= idealDayW) {
+        /* el chunk cabe entero a >= 9pt/día */
         expandedChunks.push({
           dayStart: c.dayStart, dayEnd: c.dayEnd,
           dayW: Math.min(maxDayW, fit)
         });
-      } else {
-        /* fallback: sólo si fit < 1.5 pt/día subdividimos */
-        const dW = idealDayW;
-        const dpp = Math.floor(availTimelineW / dW);
-        for (let s = c.dayStart; s < c.dayEnd; s += dpp) {
-          expandedChunks.push({
-            dayStart: s,
-            dayEnd: Math.min(c.dayEnd, s + dpp),
-            dayW: dW
-          });
+        continue;
+      }
+      /* subdividir buscando gaps */
+      let cur = c.dayStart;
+      while (cur < c.dayEnd) {
+        const naturalEnd = Math.min(c.dayEnd, cur + dpp);
+        let bestEnd = naturalEnd;
+        if (naturalEnd < c.dayEnd) {
+          const radius = Math.max(5, Math.floor(dpp * 0.22));
+          for (let r = 1; r <= radius; r++) {
+            const cand = naturalEnd - r;
+            if (cand <= cur + 5) break;     /* sub-chunk no muy diminuto */
+            if (!isActive[cand]) {           /* día de gap → split aquí */
+              bestEnd = cand;
+              break;
+            }
+          }
         }
+        const sd = bestEnd - cur;
+        const cdw = Math.min(maxDayW, Math.max(idealDayW, availTimelineW / sd));
+        expandedChunks.push({ dayStart: cur, dayEnd: bestEnd, dayW: cdw });
+        cur = bestEnd;
       }
     }
     const totalChunksH = expandedChunks.length;
