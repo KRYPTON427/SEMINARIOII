@@ -509,10 +509,12 @@
        y los nombres de actividades sin barras. */
     function hasContentInChunk(dayStart, dayEnd, rows) {
       for (const item of rows) {
-        if (item.kind === "phase") continue;
+        if (!item || item.kind === "phase") continue;
         const act = item.data;
+        if (!act || !act.start_date || !act.end_date) continue;
         const sOff = diffDays(project.start_date, act.start_date);
         const eOff = diffDays(project.start_date, act.end_date) + 1;
+        if (!Number.isFinite(sOff) || !Number.isFinite(eOff)) continue;
         if (eOff > dayStart && sOff < dayEnd) return true;
       }
       return false;
