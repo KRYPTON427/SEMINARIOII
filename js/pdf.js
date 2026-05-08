@@ -648,15 +648,19 @@
         const daysRowY   = tableY + (headerH * 2) / 3;
         const subH = headerH / 3;
 
-        /* fondo zona ACTIVIDAD */
-        doc.setFillColor(248, 250, 252);
+        /* fondo zona ACTIVIDAD — degradado sutil con borde derecho fuerte */
+        doc.setFillColor(241, 245, 249);
         doc.rect(tableX, tableY, labelsW, headerH, "F");
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(7);
-        doc.setTextColor(100, 116, 139);
-        doc.text("ACTIVIDAD", tableX + 4, tableY + headerH - 4);
+        doc.setFontSize(8);
+        doc.setTextColor(30, 41, 59);
+        doc.text("ACTIVIDAD", tableX + 6, tableY + headerH - 5);
+        /* línea dorada sutil bajo "ACTIVIDAD" */
+        doc.setDrawColor(203, 132, 27);
+        doc.setLineWidth(0.4);
+        doc.line(tableX + 6, tableY + headerH - 3, tableX + 56, tableY + headerH - 3);
 
-        /* MESES */
+        /* MESES — banda azul oscuro con texto blanco */
         let mCur = -1, mStartX = timelineX, mYear = 0;
         let curX = timelineX;
         for (let d = 0; d < chunkDays; d++) {
@@ -665,15 +669,17 @@
           if (m !== mCur) {
             if (mCur >= 0) {
               const w = curX - mStartX;
-              doc.setFillColor(241, 245, 249);
+              /* fondo de mes (azul muy oscuro) */
+              doc.setFillColor(30, 41, 59);
               doc.rect(mStartX, monthsRowY, w, subH, "F");
-              doc.setTextColor(71, 85, 105);
+              doc.setTextColor(255, 255, 255);
               doc.setFont("helvetica", "bold");
-              doc.setFontSize(7.5);
+              doc.setFontSize(8);
               doc.text(`${MONTHS[mCur]} ${String(mYear).slice(2)}`,
-                mStartX + w / 2, monthsRowY + subH - 3, { align: "center" });
-              doc.setDrawColor(203, 213, 225);
-              doc.setLineWidth(0.3);
+                mStartX + w / 2, monthsRowY + subH - 3.5, { align: "center" });
+              /* divisor entre meses */
+              doc.setDrawColor(255, 255, 255);
+              doc.setLineWidth(0.6);
               doc.line(curX, monthsRowY, curX, daysRowY + subH);
             }
             mCur = m; mYear = dt.getFullYear(); mStartX = curX;
@@ -682,16 +688,18 @@
         }
         if (mCur >= 0) {
           const w = curX - mStartX;
-          doc.setFillColor(241, 245, 249);
+          doc.setFillColor(30, 41, 59);
           doc.rect(mStartX, monthsRowY, w, subH, "F");
-          doc.setTextColor(71, 85, 105);
+          doc.setTextColor(255, 255, 255);
           doc.setFont("helvetica", "bold");
-          doc.setFontSize(7.5);
+          doc.setFontSize(8);
           doc.text(`${MONTHS[mCur]} ${String(mYear).slice(2)}`,
-            mStartX + w / 2, monthsRowY + subH - 3, { align: "center" });
+            mStartX + w / 2, monthsRowY + subH - 3.5, { align: "center" });
         }
 
-        /* SEMANAS — solo escribimos el label si la semana mide al menos 12pt */
+        /* SEMANAS — banda intermedia gris claro con label "SXX" */
+        doc.setFillColor(226, 232, 240);
+        doc.rect(timelineX, weeksRowY, chunkDays * dayW, subH, "F");
         const showWeekLabel = (dayW * 7) >= 12;
         let wCur = -1, wStartX = timelineX;
         curX = timelineX;
@@ -702,13 +710,13 @@
             if (wCur >= 0) {
               const wW = curX - wStartX;
               if (showWeekLabel) {
-                doc.setTextColor(100, 116, 139);
-                doc.setFont("helvetica", "normal");
+                doc.setTextColor(51, 65, 85);
+                doc.setFont("helvetica", "bold");
                 doc.setFontSize(6);
-                doc.text(`S${wCur}`, wStartX + wW / 2, weeksRowY + subH - 3, { align: "center" });
+                doc.text(`S${wCur}`, wStartX + wW / 2, weeksRowY + subH - 2.5, { align: "center" });
               }
-              doc.setDrawColor(226, 232, 240);
-              doc.setLineWidth(0.2);
+              doc.setDrawColor(148, 163, 184);
+              doc.setLineWidth(0.3);
               doc.line(curX, weeksRowY, curX, daysRowY + subH);
             }
             wCur = w; wStartX = curX;
@@ -717,10 +725,10 @@
         }
         if (wCur >= 0 && showWeekLabel) {
           const wW = curX - wStartX;
-          doc.setTextColor(100, 116, 139);
-          doc.setFont("helvetica", "normal");
+          doc.setTextColor(51, 65, 85);
+          doc.setFont("helvetica", "bold");
           doc.setFontSize(6);
-          doc.text(`S${wCur}`, wStartX + wW / 2, weeksRowY + subH - 3, { align: "center" });
+          doc.text(`S${wCur}`, wStartX + wW / 2, weeksRowY + subH - 2.5, { align: "center" });
         }
 
         /* DÍAS — adaptativo según el ancho disponible */
@@ -760,25 +768,36 @@
         doc.line(timelineX, tableY, timelineX, tableY + headerH);
 
         /* ===== RETÍCULA del cuerpo del Gantt =====
-           Líneas verticales por día (claras), por semana (más visibles)
-           y por mes (oscuras), + fondos de fin de semana y horizontales por fila. */
+           Capas (de abajo hacia arriba):
+            1. Zebra rows (alternando blanco / gris muy suave)
+            2. Columnas de fin de semana (gris ligeramente más oscuro)
+            3. Líneas verticales: día (sutil) > semana (definida) > mes (fuerte)
+            4. Líneas horizontales por fila */
         const bodyTop    = tableY + headerH;
         const bodyBottom = bodyTop + rows.length * rowH;
 
-        /* fondo gris suave en columnas de fin de semana */
+        /* 1. ZEBRA: filas alternas con un tinte gris muy suave */
+        rows.forEach((item, rIdx) => {
+          if (item.kind !== "phase" && rIdx % 2 === 1) {
+            doc.setFillColor(250, 251, 253);
+            doc.rect(tableX, bodyTop + rIdx * rowH, totalTableW, rowH, "F");
+          }
+        });
+
+        /* 2. fondo en columnas de fin de semana — más visible que antes */
         for (let d = 0; d < chunkDays; d++) {
           const dt = new Date(startD); dt.setDate(dt.getDate() + dayStart + d);
           const dow = dt.getDay();
           if (dow === 0 || dow === 6) {
             const x = timelineX + d * dayW;
-            doc.setFillColor(248, 250, 252);
+            doc.setFillColor(238, 242, 247);
             doc.rect(x, bodyTop, dayW, bodyBottom - bodyTop, "F");
           }
         }
 
-        /* líneas verticales por día (muy claritas) */
+        /* 3a. líneas verticales por día (muy claras) */
         if (dayW >= 3) {
-          doc.setDrawColor(241, 245, 249);
+          doc.setDrawColor(232, 236, 243);
           doc.setLineWidth(0.15);
           for (let d = 1; d < chunkDays; d++) {
             const x = timelineX + d * dayW;
@@ -786,35 +805,39 @@
           }
         }
 
-        /* líneas verticales por semana (más visibles, cada lunes) */
-        doc.setDrawColor(203, 213, 225);
-        doc.setLineWidth(0.3);
+        /* 3b. líneas verticales por semana (cada lunes) — más visibles */
+        doc.setDrawColor(176, 190, 207);
+        doc.setLineWidth(0.4);
         for (let d = 0; d < chunkDays; d++) {
           const dt = new Date(startD); dt.setDate(dt.getDate() + dayStart + d);
-          if (dt.getDay() === 1 && d > 0) {     /* lunes y no la primera columna */
+          if (dt.getDay() === 1 && d > 0) {
             const x = timelineX + d * dayW;
             doc.line(x, bodyTop, x, bodyBottom);
           }
         }
 
-        /* líneas verticales por mes (oscuras) */
-        doc.setDrawColor(148, 163, 184);
-        doc.setLineWidth(0.5);
+        /* 3c. líneas verticales por mes (acento dorado UPN) */
+        doc.setDrawColor(203, 132, 27);
+        doc.setLineWidth(0.6);
         for (let d = 0; d < chunkDays; d++) {
           const dt = new Date(startD); dt.setDate(dt.getDate() + dayStart + d);
-          if (dt.getDate() === 1 && d > 0) {    /* día 1 de cada mes */
+          if (dt.getDate() === 1 && d > 0) {
             const x = timelineX + d * dayW;
             doc.line(x, bodyTop, x, bodyBottom);
           }
         }
 
-        /* líneas horizontales por fila (claras) */
+        /* 4. líneas horizontales por fila */
         doc.setDrawColor(226, 232, 240);
         doc.setLineWidth(0.2);
         for (let r = 1; r < rows.length; r++) {
           const y = bodyTop + r * rowH;
           doc.line(tableX, y, tableX + totalTableW, y);
         }
+        /* línea horizontal más fuerte bajo el header */
+        doc.setDrawColor(148, 163, 184);
+        doc.setLineWidth(0.5);
+        doc.line(tableX, bodyTop, tableX + totalTableW, bodyTop);
 
         /* ===== ROWS ===== */
         let rowY = tableY + headerH;
@@ -822,17 +845,22 @@
           if (item.kind === "phase") {
             const ph = item.data;
             const pc = hexToRgb(ph.color);
-            /* fondo claro */
-            doc.setFillColor(248, 250, 252);
+            /* fondo de fase: tinte muy suave del color de la fase */
+            const tint = pc.map(c => Math.round(c + (255 - c) * 0.92));
+            doc.setFillColor(tint[0], tint[1], tint[2]);
             doc.rect(tableX, rowY, totalTableW, rowH, "F");
-            /* franja de color */
+            /* franja vertical de color a la izquierda (más ancha) */
             doc.setFillColor(pc[0], pc[1], pc[2]);
-            doc.rect(tableX, rowY, 4, rowH, "F");
+            doc.rect(tableX, rowY, 5, rowH, "F");
             /* título */
             doc.setFont("helvetica", "bold");
-            doc.setFontSize(8);
-            doc.setTextColor(15, 23, 42);
-            doc.text(truncate(ph.title, labelsW - 14), tableX + 8, rowY + rowH * 0.65);
+            doc.setFontSize(8.5);
+            doc.setTextColor(pc[0] * 0.6, pc[1] * 0.6, pc[2] * 0.6);
+            doc.text(truncate(ph.title, labelsW - 16), tableX + 10, rowY + rowH * 0.66);
+            /* línea horizontal superior para reforzar separación */
+            doc.setDrawColor(pc[0], pc[1], pc[2]);
+            doc.setLineWidth(0.4);
+            doc.line(tableX, rowY, tableX + totalTableW, rowY);
 
             /* mini barra de fase (rango total de sus actividades) */
             const phaseActs = activities.filter(a => a.phase_id === ph.id);
@@ -928,11 +956,13 @@
           rowY += rowH;
         });
 
-        /* línea vertical actividad / timeline */
-        doc.setDrawColor(148, 163, 184);
-        doc.setLineWidth(0.4);
+        /* línea vertical actividad / timeline (separa labels de timeline) */
+        doc.setDrawColor(71, 85, 105);
+        doc.setLineWidth(0.7);
         doc.line(timelineX, tableY, timelineX, rowY);
-        /* borde exterior */
+        /* borde exterior de la tabla */
+        doc.setDrawColor(71, 85, 105);
+        doc.setLineWidth(0.7);
         doc.rect(tableX, tableY, totalTableW, rowY - tableY, "S");
 
         /* ===== TODAY ===== */
