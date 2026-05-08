@@ -476,29 +476,68 @@
     const availContentH  = pageH - margin * 2 - titleH - headerH - noteH;
     const rowsPerPage    = Math.floor(availContentH / rowH);
 
-    /* Estrategia: el cronograma COMPLETO en cada página (sin cortar
-       barras a mitad de actividad). Comprimimos el día tanto como sea
-       necesario para que las 32 semanas entren en el ancho útil.
-       Sólo paginamos en VERTICAL (cuando hay muchas filas de actividad).
-       Si el proyecto fuera tan largo que ni siquiera con 1.5pt/día cabe,
-       caemos al modo histórico de paginar horizontalmente. */
+    /* Estrategia: detectamos huecos largos sin actividad (≥14 días) —
+       típicamente el receso intersemestral — y partimos el Gantt allí,
+       sin cortar barras de actividad. Cada chunk horizontal se ajusta
+       a su propio ancho de página, así los días son más grandes y los
+       labels (Nd · X%) caben dentro de las barras. */
     const idealDayW = 9;
     const minDayW   = 1.5;
     const maxDayW   = 30;
-    const fitDayW   = availTimelineW / totalDays;
+    const minGapDays = 14;
 
-    let dayW, daysPerPage, totalChunksH;
-    if (fitDayW >= minDayW) {
-      /* cabe en un ancho de página: usamos `fitDayW` (limitado al máximo) */
-      dayW = Math.min(maxDayW, fitDayW);
-      daysPerPage = totalDays;
-      totalChunksH = 1;
-    } else {
-      /* fallback: cronograma muy extenso → paginamos horizontalmente */
-      dayW = idealDayW;
-      daysPerPage = Math.floor(availTimelineW / dayW);
-      totalChunksH = Math.ceil(totalDays / daysPerPage);
+    /* marcar días con actividad activa */
+    const isActive = new Array(totalDays).fill(false);
+    activities.forEach(a => {
+      if (!a || !a.start_date || !a.end_date) return;
+      const s = diffDays(project.start_date, a.start_date);
+      const e = diffDays(project.start_date, a.end_date);
+      if (!Number.isFinite(s) || !Number.isFinite(e)) return;
+      for (let d = Math.max(0, s); d <= Math.min(totalDays - 1, e); d++) {
+        isActive[d] = true;
+      }
+    });
+
+    /* armar chunks de fechas saltando huecos largos */
+    const dateChunks = [];
+    let cStart = -1, gapLen = 0;
+    for (let d = 0; d < totalDays; d++) {
+      if (isActive[d]) {
+        if (cStart < 0) cStart = d;
+        if (gapLen >= minGapDays && dateChunks.length && dateChunks[dateChunks.length - 1].dayEnd === undefined) {
+          /* nunca llegamos aquí — limpieza por si acaso */
+        }
+        gapLen = 0;
+      } else if (cStart >= 0) {
+        gapLen++;
+        if (gapLen === minGapDays) {
+          /* cerramos el chunk en el último día activo */
+          dateChunks.push({ dayStart: cStart, dayEnd: d - minGapDays + 1 });
+          cStart = -1;
+        }
+      }
     }
+    if (cStart >= 0) dateChunks.push({ dayStart: cStart, dayEnd: totalDays - gapLen });
+    if (!dateChunks.length) dateChunks.push({ dayStart: 0, dayEnd: totalDays });
+
+    /* dayW por chunk (cada chunk se ajusta a su página). Si un chunk
+       resulta tan largo que dayW < minDayW, lo subdividimos. */
+    const expandedChunks = [];
+    for (const c of dateChunks) {
+      const days = c.dayEnd - c.dayStart;
+      const fit  = availTimelineW / days;
+      if (fit >= minDayW) {
+        expandedChunks.push({ dayStart: c.dayStart, dayEnd: c.dayEnd, dayW: Math.min(maxDayW, fit) });
+      } else {
+        /* subdividir respetando minDayW */
+        const dW = idealDayW;
+        const dpp = Math.floor(availTimelineW / dW);
+        for (let s = c.dayStart; s < c.dayEnd; s += dpp) {
+          expandedChunks.push({ dayStart: s, dayEnd: Math.min(c.dayEnd, s + dpp), dayW: dW });
+        }
+      }
+    }
+    const totalChunksH = expandedChunks.length;
 
     /* paginación SOLO vertical (cuando hay muchas actividades) */
     const verticalChunks = Math.max(1, Math.ceil(ordered.length / rowsPerPage));
@@ -528,12 +567,11 @@
     /* primera pasada: contar páginas con contenido (para "parte X de Y") */
     let totalValidPages = 0;
     for (let hh = 0; hh < totalChunksH; hh++) {
-      const dStart = hh * daysPerPage;
-      const dEnd   = Math.min(totalDays, dStart + daysPerPage);
+      const ec = expandedChunks[hh];
       for (let vv = 0; vv < verticalChunks; vv++) {
         const rStart = vv * rowsPerPage;
         const rEnd   = Math.min(ordered.length, rStart + rowsPerPage);
-        if (hasContentInChunk(dStart, dEnd, ordered.slice(rStart, rEnd))) totalValidPages++;
+        if (hasContentInChunk(ec.dayStart, ec.dayEnd, ordered.slice(rStart, rEnd))) totalValidPages++;
       }
     }
     if (totalValidPages === 0) return startPageNo;
@@ -542,8 +580,10 @@
 
     /* ---------- páginas ---------- */
     for (let h = 0; h < totalChunksH; h++) {
-      const dayStart = h * daysPerPage;
-      const dayEnd   = Math.min(totalDays, dayStart + daysPerPage);
+      const ec = expandedChunks[h];
+      const dayStart = ec.dayStart;
+      const dayEnd   = ec.dayEnd;
+      const dayW     = ec.dayW;
       const chunkDays = dayEnd - dayStart;
       const timelineW = chunkDays * dayW;
 
@@ -844,12 +884,18 @@
                 doc.roundedRect(bx, by, progW, bh, 1.5, 1.5, "F");
               }
 
-              /* etiqueta dentro de la barra */
-              if (bw > 24) {
+              /* etiqueta dentro de la barra (Nd · X%) */
+              if (bw > 28) {
                 doc.setTextColor(255, 255, 255);
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(5.5);
-                doc.text(`${dur}d · ${prog}%`, bx + 3, by + bh / 2 + 1.5);
+                doc.text(`${dur}d - ${prog}%`, bx + 3, by + bh / 2 + 1.5);
+              } else if (bw > 16) {
+                /* sólo días, sin porcentaje, para barras compactas */
+                doc.setTextColor(255, 255, 255);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(5);
+                doc.text(`${dur}d`, bx + 3, by + bh / 2 + 1.5);
               }
 
               /* indicador de prioridad crítica/alta (borde rojo) */
