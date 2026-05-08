@@ -983,31 +983,19 @@
       return;
     }
     const { jsPDF } = window.jspdf;
-    /* iniciamos en A4 portrait — el cronograma va en landscape */
-    const doc = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
+    /* sólo Gantt: iniciamos directamente en A4 landscape. La página
+       default que crea jsPDF queda vacía y la borramos al final
+       (renderNativeGantt llama addPage al inicio de cada chunk). */
+    const doc = new jsPDF({ unit: "pt", format: "a4", orientation: "landscape" });
 
-    /* 1. portada APA */
-    renderCover(doc, project, user);
-
-    /* 2. resumen del cronograma */
-    let pageNo = 2;
-    renderSummary(doc, project, phases, activities, pageNo);
-    pageNo++;
-
-    /* 3. Gantt visual estilo web — TODO en una sola página horizontal
-       (sin paginación horizontal: el día se comprime para que entren los 12 meses) */
     if (activities.length) {
-      pageNo = renderNativeGantt(doc, project, phases, activities, pageNo);
-    }
-
-    /* 4. Tabla detallada de actividades */
-    if (activities.length) {
-      renderActivitiesTable(doc, project, phases, activities, pageNo);
+      renderNativeGantt(doc, project, phases, activities, 1);
+      if (doc.internal.getNumberOfPages() > 1) doc.deletePage(1);
     }
 
     const safeTitle = (project.title || "cronograma")
       .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-    doc.save(`${safeTitle || "cronograma"}-apa.pdf`);
+    doc.save(`${safeTitle || "cronograma"}-gantt.pdf`);
   }
 
   window.PDF_EXPORT = { exportPDF };
