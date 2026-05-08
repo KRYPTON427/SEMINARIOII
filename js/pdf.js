@@ -551,61 +551,72 @@
     }
     const totalChunksH = expandedChunks.length;
 
-    /* paginación SOLO vertical (cuando hay muchas actividades) */
-    const verticalChunks = Math.max(1, Math.ceil(ordered.length / rowsPerPage));
-
     /* fechas/datos comunes */
     const todayStr = project.today_override || new Date().toISOString().slice(0, 10);
     const todayOffset = diffDays(project.start_date, todayStr);
 
-    /* helper: ¿hay barras de ACTIVIDAD visibles en este chunk
-       (date-band × row-band)? Solo contamos actividades/sub-actividades.
-       Los headers de fase no cuentan porque su barra abarca toda la
-       fase y haría que se generen páginas con sólo la franja de fase
-       y los nombres de actividades sin barras. */
-    function hasContentInChunk(dayStart, dayEnd, rows) {
-      for (const item of rows) {
-        if (!item || item.kind === "phase") continue;
+    /* Para cada chunk de fechas, filtramos las filas que realmente tienen
+       barras dentro de ese rango. Las filas vacías (con sus etiquetas pero
+       sin barra) NO aparecen — así cada página muestra solo lo relevante.
+       Los headers de fase se incluyen sólo si alguna de sus actividades
+       cae en el rango. */
+    function filterRowsForRange(rowsAll, dayStart, dayEnd) {
+      const out = [];
+      let pendingPhase = null;
+      let pendingPhaseEmitted = null;
+      for (const item of rowsAll) {
+        if (item.kind === "phase") {
+          pendingPhase = item;
+          pendingPhaseEmitted = null;
+          continue;
+        }
         const act = item.data;
         if (!act || !act.start_date || !act.end_date) continue;
-        const sOff = diffDays(project.start_date, act.start_date);
-        const eOff = diffDays(project.start_date, act.end_date) + 1;
-        if (!Number.isFinite(sOff) || !Number.isFinite(eOff)) continue;
-        if (eOff > dayStart && sOff < dayEnd) return true;
+        const s = diffDays(project.start_date, act.start_date);
+        const e = diffDays(project.start_date, act.end_date) + 1;
+        if (!Number.isFinite(s) || !Number.isFinite(e)) continue;
+        if (e <= dayStart || s >= dayEnd) continue;   /* fuera de rango */
+        if (pendingPhase && pendingPhase !== pendingPhaseEmitted) {
+          out.push(pendingPhase);
+          pendingPhaseEmitted = pendingPhase;
+        }
+        out.push(item);
       }
-      return false;
+      return out;
     }
 
-    /* primera pasada: contar páginas con contenido (para "parte X de Y") */
-    let totalValidPages = 0;
-    for (let hh = 0; hh < totalChunksH; hh++) {
-      const ec = expandedChunks[hh];
-      for (let vv = 0; vv < verticalChunks; vv++) {
-        const rStart = vv * rowsPerPage;
-        const rEnd   = Math.min(ordered.length, rStart + rowsPerPage);
-        if (hasContentInChunk(ec.dayStart, ec.dayEnd, ordered.slice(rStart, rEnd))) totalValidPages++;
+    /* Plan de páginas: para cada chunk de fechas, filtramos filas con
+       contenido y las paginamos verticalmente en grupos de rowsPerPage.
+       Resultado: cada página muestra exactamente las filas que tienen
+       barras visibles, sin huecos ni filas vacías. */
+    const pagesPlan = [];
+    for (let h = 0; h < totalChunksH; h++) {
+      const ec = expandedChunks[h];
+      const visibleRows = filterRowsForRange(ordered, ec.dayStart, ec.dayEnd);
+      if (visibleRows.length === 0) continue;
+      const vChunks = Math.max(1, Math.ceil(visibleRows.length / rowsPerPage));
+      for (let v = 0; v < vChunks; v++) {
+        const rowStart = v * rowsPerPage;
+        const rowEnd = Math.min(visibleRows.length, rowStart + rowsPerPage);
+        pagesPlan.push({ ec, rows: visibleRows.slice(rowStart, rowEnd) });
       }
     }
+    const totalValidPages = pagesPlan.length;
     if (totalValidPages === 0) return startPageNo;
 
     let currentPage = startPageNo;
 
     /* ---------- páginas ---------- */
-    for (let h = 0; h < totalChunksH; h++) {
-      const ec = expandedChunks[h];
+    for (let pageIdx = 0; pageIdx < pagesPlan.length; pageIdx++) {
+      const page = pagesPlan[pageIdx];
+      const ec = page.ec;
+      const rows = page.rows;
       const dayStart = ec.dayStart;
       const dayEnd   = ec.dayEnd;
       const dayW     = ec.dayW;
       const chunkDays = dayEnd - dayStart;
       const timelineW = chunkDays * dayW;
-
-      for (let v = 0; v < verticalChunks; v++) {
-        const rowStart = v * rowsPerPage;
-        const rowEnd   = Math.min(ordered.length, rowStart + rowsPerPage);
-        const rows = ordered.slice(rowStart, rowEnd);
-
-        /* SALTAR páginas sin barras visibles (combinación date×row vacía) */
-        if (!hasContentInChunk(dayStart, dayEnd, rows)) continue;
+      {
 
         doc.addPage("a4", "landscape");
 
