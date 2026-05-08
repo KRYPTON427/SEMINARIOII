@@ -164,7 +164,9 @@
 
     const phaseById = new Map(phases.map(p => [p.id, p]));
 
-    /* === header de meses / semanas / días === */
+    /* === header de meses / semanas / días ===
+       dateLabelMode: "real" (Ago 26 · S32) o "relative" (Mes 1 · Sem 1) */
+    const dateLabelMode = (project && project.date_label_mode) || "real";
     const startDate = parseDate(start);
     const monthBlocks = [];   /* {label, span} */
     const weekBlocks  = [];   /* {label, span} */
@@ -172,6 +174,8 @@
 
     let mCur = -1, mSpan = 0, mYear = 0;
     let wCur = -1, wSpan = 0;
+    let monthCounter = 0;
+    let weekCounter = 0;
 
     for (let i = 0; i < totalDays; i++) {
       const dt = new Date(startDate);
@@ -180,23 +184,40 @@
       const w = isoWeekNum(dt);
 
       if (m !== mCur) {
-        if (mSpan > 0) monthBlocks.push({ label: `${MONTHS_ES[mCur]} ${String(mYear).slice(2)}`, span: mSpan });
+        if (mSpan > 0) {
+          const lbl = dateLabelMode === "relative"
+            ? `Mes ${monthCounter}`
+            : `${MONTHS_ES[mCur]} ${String(mYear).slice(2)}`;
+          monthBlocks.push({ label: lbl, span: mSpan });
+        }
         mCur = m; mYear = y; mSpan = 0;
+        monthCounter++;
       }
       mSpan++;
       if (w !== wCur) {
-        if (wSpan > 0) weekBlocks.push({ label: `S${wCur}`, span: wSpan });
+        if (wSpan > 0) {
+          const lbl = dateLabelMode === "relative" ? `Sem ${weekCounter}` : `S${wCur}`;
+          weekBlocks.push({ label: lbl, span: wSpan });
+        }
         wCur = w; wSpan = 0;
+        weekCounter++;
       }
       wSpan++;
 
       const dow = dt.getDay();
       const isWeekend = dow === 0 || dow === 6;
       const isToday = fmtISO(dt) === today;
-      daysHTML += `<div class="gnt-day ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}">${dt.getDate()}</div>`;
+      const dayLabel = dateLabelMode === "relative" ? (i + 1) : dt.getDate();
+      daysHTML += `<div class="gnt-day ${isWeekend ? 'is-weekend' : ''} ${isToday ? 'is-today' : ''}">${dayLabel}</div>`;
     }
-    monthBlocks.push({ label: `${MONTHS_ES[mCur]} ${String(mYear).slice(2)}`, span: mSpan });
-    weekBlocks.push({ label: `S${wCur}`, span: wSpan });
+    {
+      const monthLbl = dateLabelMode === "relative"
+        ? `Mes ${monthCounter}`
+        : `${MONTHS_ES[mCur]} ${String(mYear).slice(2)}`;
+      monthBlocks.push({ label: monthLbl, span: mSpan });
+      const weekLbl = dateLabelMode === "relative" ? `Sem ${weekCounter}` : `S${wCur}`;
+      weekBlocks.push({ label: weekLbl, span: wSpan });
+    }
 
     const monthsHTML = monthBlocks.map(b =>
       `<div class="gnt-month" style="grid-column: span ${b.span}">${b.label}</div>`

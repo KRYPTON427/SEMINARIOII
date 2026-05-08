@@ -14,8 +14,8 @@
       rel="stylesheet"
     />
 
-    <link rel="stylesheet" href="css/auth.css?v=8" />
-    <link rel="stylesheet" href="css/app.css?v=8" />
+    <link rel="stylesheet" href="css/auth.css?v=9" />
+    <link rel="stylesheet" href="css/app.css?v=9" />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
   </head>
   <body class="app-page">
@@ -44,6 +44,10 @@
       </div>
 
       <div class="app-topbar__right">
+        <select id="date-mode-select" class="app-select" aria-label="Formato de fechas en el calendario" title="Cambiar formato del eje de fechas">
+          <option value="real">Fechas reales (Ago 26 / S32)</option>
+          <option value="relative">Mes 1 / Sem 1 (relativo)</option>
+        </select>
         <button class="app-btn app-btn--ghost" id="btn-export-pdf" title="Exportar a PDF formato APA" aria-label="Exportar cronograma a PDF en formato APA">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
           <span>PDF · APA</span>
@@ -399,11 +403,11 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"></script>
 
-    <script src="js/config.js?v=8"></script>
-    <script src="js/auth.js?v=8"></script>
-    <script src="js/store.js?v=8"></script>
-    <script src="js/gantt.js?v=8"></script>
-    <script src="js/pdf.js?v=8"></script>
-    <script src="js/app.js?v=8"></script>
+    <script src="js/config.js?v=9"></script>
+    <script src="js/auth.js?v=9"></script>
+    <script src="js/store.js?v=9"></script>
+    <script src="js/gantt.js?v=9"></script>
+    <script src="js/pdf.js?v=9"></script>
+    <script src="js/app.js?v=9"></script>
   </body>
 </html>

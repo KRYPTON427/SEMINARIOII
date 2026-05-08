@@ -400,24 +400,27 @@
 }
 .gnt-table { display: flex; flex-direction: column; min-width: 100%; }
 
-/* row layout — left labels + timeline */
+/* row layout — left labels + timeline.
+   Usamos FLEXBOX en vez de Grid: position:sticky funciona de forma
+   más predecible con flex (algunos navegadores rompen el ancho de
+   las celdas cuando combinas grid items + sticky en scroll horizontal). */
 .gnt-row {
   --row-bg: var(--surface);
-  display: grid;
-  grid-template-columns:
-    32px      /* num */
-    230px     /* name */
-    120px     /* status */
-    120px     /* priority */
-    108px     /* start */
-    108px     /* end */
-    62px      /* actions */
-    auto;     /* timeline */
+  display: flex;
   align-items: stretch;
   border-bottom: 1px solid var(--line-soft);
   background: var(--row-bg);
   min-height: 38px;
 }
+.gnt-row > div { flex-shrink: 0; box-sizing: border-box; }
+.gnt-row > div:nth-child(1) { width: 32px;  }   /* # */
+.gnt-row > div:nth-child(2) { width: 230px; }   /* nombre */
+.gnt-row > div:nth-child(3) { width: 120px; }   /* estado */
+.gnt-row > div:nth-child(4) { width: 120px; }   /* prioridad */
+.gnt-row > div:nth-child(5) { width: 108px; }   /* inicio */
+.gnt-row > div:nth-child(6) { width: 108px; }   /* fin */
+.gnt-row > div:nth-child(7) { width: 62px;  }   /* acciones */
+.gnt-row > div:nth-child(8) { flex-grow: 0; }   /* timeline (width inline) */
 .gnt-row.is-phase { --row-bg: var(--bg-soft); }
 .gnt-row.is-phase > div:first-child,
 .gnt-row.is-phase > div { font-weight: 600; color: var(--ink); }

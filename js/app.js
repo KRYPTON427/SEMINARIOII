@@ -353,7 +353,11 @@
       host.innerHTML = "";
       return;
     }
-    window.GanttView.render(host, state.currentProject, state.phases, state.activities, {
+    /* fusionamos el modo de etiquetas (real / relativo) que se elige
+       en el select del topbar — se persiste en localStorage */
+    const dateLabelMode = localStorage.getItem("gnt.dateLabelMode") || "real";
+    const projectWithMode = { ...state.currentProject, date_label_mode: dateLabelMode };
+    window.GanttView.render(host, projectWithMode, state.phases, state.activities, {
       onAddActivity: (prefill) => openActivityModal(null, prefill || {}),
       onEditActivity: (id) => openActivityModal(id),
       onAddSubActivity: (parentId) => {
@@ -1068,6 +1072,16 @@
       await selectProject(e.target.value);
     });
     $("#btn-new-project").addEventListener("click", () => openProjectModal());
+
+    /* selector de formato de fechas (Ago 26 / S32  ↔  Mes 1 / Sem 1) */
+    const dateModeSel = $("#date-mode-select");
+    if (dateModeSel) {
+      dateModeSel.value = localStorage.getItem("gnt.dateLabelMode") || "real";
+      dateModeSel.addEventListener("change", () => {
+        localStorage.setItem("gnt.dateLabelMode", dateModeSel.value);
+        renderGantt();
+      });
+    }
 
     /* add phase */
     $("#btn-add-phase").addEventListener("click", () => openPhaseModal());
