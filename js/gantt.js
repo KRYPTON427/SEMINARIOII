@@ -483,6 +483,35 @@
       const syncRL = () => { if (lock) return; lock = true; rightBody.scrollTop = leftBody.scrollTop; lock = false; };
       rightBody.addEventListener("scroll", syncLR, { passive: true });
       leftBody.addEventListener("scroll", syncRL, { passive: true });
+
+      /* sync de ALTURAS: cuando un título envuelve a 2-3 líneas, la fila
+         izquierda crece pero la derecha no. Medimos y aplicamos la altura
+         máxima de cada par para que las barras alineen con sus actividades. */
+      const syncRowHeights = () => {
+        const leftRows  = leftBody.querySelectorAll(".gnt-row");
+        const rightRows = rightBody.querySelectorAll(".gnt-row");
+        const n = Math.min(leftRows.length, rightRows.length);
+        /* primera pasada: limpiar para medir altura natural */
+        for (let i = 0; i < n; i++) {
+          leftRows[i].style.height = "";
+          rightRows[i].style.height = "";
+        }
+        /* segunda pasada: aplicar máxima */
+        for (let i = 0; i < n; i++) {
+          const lh = leftRows[i].getBoundingClientRect().height;
+          const rh = rightRows[i].getBoundingClientRect().height;
+          const max = Math.ceil(Math.max(lh, rh));
+          leftRows[i].style.height  = max + "px";
+          rightRows[i].style.height = max + "px";
+        }
+      };
+      /* doble RAF para garantizar layout completo (fonts, inputs, selects) */
+      requestAnimationFrame(() => requestAnimationFrame(syncRowHeights));
+
+      /* re-sincronizar en resize (los textos pueden envolver distinto) */
+      if (host._gnt_resizeObs) host._gnt_resizeObs.disconnect();
+      host._gnt_resizeObs = new ResizeObserver(() => syncRowHeights());
+      host._gnt_resizeObs.observe(leftBody);
     }
 
     /* Mejora visual de los <select> de estado/prioridad */
